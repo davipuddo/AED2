@@ -55,7 +55,7 @@ public class TP0101
 					// Mostrar dados
 					if (result == true)
 					{
-						System.out.println ("SIM");
+						System.out.println ("SI");
 					}
 					else
 					{
@@ -64,6 +64,5 @@ public class TP0101
 				}
 			}
 		}
-	sc = null; // Delete obj
 	}
 }
