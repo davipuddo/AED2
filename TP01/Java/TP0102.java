@@ -8,6 +8,12 @@ public class TP0102
 		return(io.readLine());
 	}
 
+	public static void println(String s)
+	{
+		MyIO io = new MyIO();
+		io.println(s);
+	}
+
 	// Codificar em cifra de cesar | chave = 3
 	public static String encode (String data)
 	{
@@ -15,11 +21,9 @@ public class TP0102
 		if (data != null)
 		{
 			int n = data.length();
-			int buffer = 0;
 			for (int i = 0; i < n; i++)
 			{
-				buffer = (int)data.charAt(i) + 3;
-				result = result + (char)buffer;
+				result = result + (char)((int)data.charAt(i) + 3);
 			}
 		}
 		return (result);
@@ -43,7 +47,7 @@ public class TP0102
 				if (result != null)
 				{
 					// Mostrar dados
-					System.out.println (result);
+					println (result);
 				}
 			}
 		}
