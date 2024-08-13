@@ -28,30 +28,42 @@ bool pali (char* s, int n)
 	return (result);
 }
 
-int main ()
+int main (void)
 {
 	// Definir dados
-	char* data = calloc(80, sizeof(char));
+	char* data = calloc(400, sizeof(char));
 	bool result = false;
+	bool stop = false;
 	
-	while ()
+	if (data != NULL)
 	{
-		// Ler dados
-		scanf ("%s", data);
-		getchar();
-
-		// Verificar se e palindromo
-		result = pali(data, strlen(data));
-
-		// Mostrar dados
-		if (result)
+		while (stop == false)
 		{
-			printf ("SIM\n");
+			// Ler dados
+			fgets(data, 400, stdin);
+			data[strlen(data)-1] = '\0';		// Remover \n
+			
+			if (strcmp(data, "FIM") != 0)
+			{
+				// Verificar se e palindromo
+				result = pali(data, strlen(data));
+		
+				// Mostrar dados
+				if (result)
+				{
+					printf ("SIM\n");
+				}
+				else
+				{
+					printf ("NAO\n");
+				}
+			}
+			else
+			{
+				stop = true;
+			}
 		}
-		else
-		{
-			printf ("NAO\n");
-		}
+		free(data);
 	}
 	return (0);
 }

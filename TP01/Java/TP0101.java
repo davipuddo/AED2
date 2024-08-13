@@ -55,11 +55,11 @@ public class TP0101
 					// Mostrar dados
 					if (result == true)
 					{
-						System.out.println ("SI");
+						System.out.print ("SIM\n");
 					}
 					else
 					{
-						System.out.println ("NAO");
+						System.out.print ("NAO\n");
 					}
 				}
 			}
