@@ -1,9 +1,13 @@
 // 853355 Davi Puddo
 
-import java.util.Scanner;
-
 public class TP0102
 {
+	public static String readLine()
+	{
+		MyIO io = new MyIO();
+		return(io.readLine());
+	}
+
 	// Codificar em cifra de cesar | chave = 3
 	public static String encode (String data)
 	{
@@ -24,14 +28,13 @@ public class TP0102
 	public static void main (String[] args)
 	{
 		// Definir dados
-		Scanner sc = new Scanner(System.in);
 		String result = null;
 		String data = "";
 
 		while (!data.equals("FIM"))
 		{	
 			// Ler dados
-			data = sc.nextLine();
+			data = readLine();
 
 			if (data != null && !data.equals("FIM"))
 			{
@@ -44,6 +47,5 @@ public class TP0102
 				}
 			}
 		}
-		sc = null;
 	}
 }

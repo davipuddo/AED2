@@ -46,7 +46,7 @@ public class TP0101
 				result = pali (data);
 
 				// Condicao de parada
-				if (data.equals("FIM"))
+				if (data.length() == 3 && data.charAt(0) == 'F' && data.charAt(1) == 'I' && data.charAt(2) == 'M')
 				{
 					stop = true;
 				}
