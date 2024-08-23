@@ -2,25 +2,27 @@
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <stdbool.h>
+#include <string.h>
 
-// Criptografar dados em cifra de cesar | Chave = 3
-char* encode (char* data)
+// Descobrir se uma cadeia de caraceteres e um palindromo
+bool pali (char* s, int n)
 {
-	char* result = NULL;
-	if (data)
+	bool result = false;
+	if (s)
 	{
-		int size = strlen(data);
-		result = calloc(size, sizeof(char));
-		
-		if (result)
+		int i = 0;
+		int y = n-1;
+		int w = n;
+
+		while (i < w && s[i] == s[y])
 		{
-			for (int i = 0; i < size; i++)
-			{
-				result[i] = (data[i] + 3);
-			}
-			result[size-1] = '\0';
+			i++;
+			y--;
+		}
+		if (i == w)
+		{
+			result = true;
 		}
 	}
 	return (result);
@@ -29,38 +31,38 @@ char* encode (char* data)
 int main (void)
 {
 	// Definir dados
-	char* data = NULL;
-	char* result = NULL;
+	char* data = calloc(400, sizeof(char));
+	bool result = false;
 	bool stop = false;
 	
-	// Alocar espaco para a leitura
-	data = calloc(400, sizeof(char));
-
-	if (data)
+	if (data != NULL)
 	{
 		while (stop == false)
 		{
 			// Ler dados
-			fgets(data, 400, stdin);
-			data[strlen(data)-1] = '\0';	// Remover \n
-
-			result = encode(data);
-
+			scanf(" %400[^\n]", data);
+			
 			if (strcmp(data, "FIM") != 0)
 			{
+				// Verificar se e palindromo
+				result = pali(data, strlen(data));
+		
 				// Mostrar dados
-				int n = strlen(result);
-				for (int i = 0; i < n; i++)
+				if (result)
 				{
-					printf ("%c", result[i]);
+					printf ("SIM\n");
 				}
-				printf ("\n");
+				else
+				{
+					printf ("NAO\n");
+				}
 			}
 			else
 			{
-				stop = true;	// Condicao de parada
+				stop = true;
 			}
 		}
+		free(data);
 	}
 	return (0);
 }
