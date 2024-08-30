@@ -50,7 +50,7 @@ public class TP0107
 	// Retornar TRUE se o caracter for uma letra
 	public static boolean isLetter (char c)
 	{
-		return ( (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z'));
+		return ( /*(c >= 'A' && c <= 'Z') || */(c >= 'a' && c <= 'z'));
 	}
 
 	// Retornar TRUE se o caractere for uma vogal
