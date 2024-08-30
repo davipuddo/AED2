@@ -59,11 +59,21 @@ public class TP0107
 		return (c == 'a' || c == 'A' || c == 'e' || c == 'E' || c == 'i' || c == 'I' || c == 'o' || c == 'O' || c == 'U');
 	}
 
+	public static boolean isNum (char c)
+	{
+		boolean result = false;
+		if (c >= '0' && c <= '9')
+		{
+			result = true;
+		}
+		return (result);
+	}
+
 	// Retornar TRUE se o caractere for uma consoante
 	public static boolean isConsonant (char c)
 	{
 		boolean result = false;
-		if (isLetter(c) && !isVogal(c))
+		if (isLetter(c) && !isVogal(c) && !isNum(c))
 		{
 			result = true;
 		}
