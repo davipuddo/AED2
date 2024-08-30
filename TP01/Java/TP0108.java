@@ -1,64 +1,48 @@
 // 853355 Davi Puddo
 
-import java.util.Scanner;
 import java.io.*;
 
 public class TP0108
 {
 	public static void main (String[] args)
 	{
-		int max = 0;
+		// Read number of double elements to be read
+		int max = MyIO.readInt();
 
-		// Create blank file
-		/*try
-		{
-			FileWriter f = new FileWriter ("TP0108.txt", false);
-			f.write();
-			f.close();
-		}
-		catch(IOException e)
-		{}*/
-		
-		// Read input and write on file
+		// File	
 		try
 		{
-			FileWriter fw = new FileWriter ("TP0108.txt", true);
-			BufferedWriter bw = new BufferedWriter (fw);
-			PrintWriter file = new PrintWriter(bw);
-
-			Scanner sc = new Scanner(System.in);
-			int i = 0;
-			max = sc.nextInt();
-			double buffer = 0.0;
-
-			while (i < max)
-			{
-				buffer = sc.nextDouble();	// Read input
-				//file.println(buffer);		// Save input on buffer
-				i++;
-			}
-			file.close();					// Send buffered data to file and close stream
-		}
-		catch (IOException e)
-		{}
-		
-		try
-		{
+			// Open file
 			RandomAccessFile raf = new RandomAccessFile ("TP0108.txt", "rw");
-			
-			int pos = (0);
-			raf.seek(pos);
-			raf.writeDouble(1.444);
-			System.out.println ("" + raf.readDouble());
 
-			/*for (int i = 0; i < size; i++)
+			// Write values on the file
+			for (int i = max; i > 0; i--)
 			{
-				raf.seek(size-(i));
-				System.out.println (raf.readLine());
-			}*/
-			raf.close();
+				double buffer = MyIO.readDouble();
+				raf.writeDouble(buffer);
+			}
+			
+			int max2 = max+1;					// Otimization
+
+			// Read file backwards
+			for (int i = 1; i < max2; i++)
+			{
+				raf.seek(raf.length()-(i*8));
+				double buffer = raf.readDouble();
+
+				// Show values read
+				if (buffer == (int)buffer)
+				{
+					System.out.println ((int)buffer);
+				}
+				else
+				{
+					System.out.println (buffer);
+				}
+			}
+			raf.close();						// Close/Save file
 		}
-		catch (IOException e)
+		catch (IOException e)					// If error occurs
 		{
 			System.err.println ("Error");
 			e.printStackTrace();

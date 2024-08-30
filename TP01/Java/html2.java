@@ -91,27 +91,55 @@ public class TP0107
 					i++;
 				}
 				
+				boolean text = false;
 				i = 0;
 				while (i < size)
 				{
 					char buffer = data.charAt(i);
 					String vogals = "aeiouáéíóúàèìòùãõâêîôû";
 					int y = 0;
-
-					// Contar vogais com e sem acento minusculas
-					while (y < 22)	
+			
+					// Contar apenas letras que sao exibidas
+					if (i < (size-2))
 					{
-						if (buffer == vogals.charAt(y) /*|| buffer == (char)(vogals.charAt(y) - 32) */)
+						if (data.charAt(i+1) == '>')
 						{
-							result[y] = result[y] + 1;
+							if (buffer == 'a' || buffer == 'i' || buffer == 'p' || buffer == '"')
+							{
+								if (data.charAt(i+2) != '<')
+								{
+									text = true;
+									i = i+2;
+									buffer = data.charAt(i);
+								}
+							}
 						}
-						y++;
 					}
-					
-					// Contar consoantes
-					if (isConsonant(buffer))
+
+					if (text == true)
 					{
-						result[22] = result[22] + 1;
+						if (buffer == '<')
+						{
+							text = false;
+						}
+						else
+						{
+							// Contar vogais com e sem acento, maiusculas ou minusculas
+							while (y < 22)	
+							{
+								if (buffer == vogals.charAt(y) || buffer == (char)(vogals.charAt(y) - 32) )
+								{
+									result[y] = result[y] + 1;
+								}
+								y++;
+							}
+							
+							// Contar consoantes
+							if (isConsonant(buffer))
+							{
+								result[22] = result[22] + 1;
+							}
+						}
 					}
 					
 					// Contar elementos <br/>
@@ -133,14 +161,14 @@ public class TP0107
 					// Contar elementos </table>
 					if (i < TSize)
 					{
-						String tb = "<table>";
+						String tb = "</table>";
 						int w = 0;
 
-						while (w < 7 && data.charAt(i+w) == tb.charAt(w))
+						while (w < 8 && data.charAt(i+w) == tb.charAt(w))
 						{
 							w++;
 						}
-						if (w == 7)
+						if (w == 8)
 						{
 							result[24] = result[24] + 1;
 						}
@@ -181,7 +209,8 @@ public class TP0107
 					
 					// Mostrar dados
 					String values = "aeiouáéíóúàèìòùãõâêîôû";
-					int Vsize = values.length();				// = 22
+					int Vsize = values.length();
+					
 					for (int i = 0; i < Vsize; i++)
 					{
 						System.out.print (values.charAt(i) + "(" + counter[i] + ") ");
