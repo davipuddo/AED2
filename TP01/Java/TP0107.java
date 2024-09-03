@@ -86,21 +86,25 @@ public class TP0107
 		int[] result = null;
 		if (data != null)
 		{
+			// Arranjo de contagem
 			result = new int[25];
 
 			if (result != null)
 			{
-				int i = 0;
-				int size = data.length();
-				int BSize = size - 5;
-				int TSize = size - 8;
+				// Variaveis
+				int i = 0;					// Index da string
+				int size = data.length();	// Tamanho total da string
+				int BSize = size - 5;		// Index do elemento <br>
+				int TSize = size - 8;		// Index do elemento <table>
 
+				// Definir contadores para 0
 				while (i < 25)
 				{
 					result[i] = 0;
 					i++;
 				}
 				
+				// Contar elementos
 				i = 0;
 				while (i < size)
 				{
@@ -140,7 +144,7 @@ public class TP0107
 						}
 					}
 					
-					// Contar elementos </table>
+					// Contar elementos <table>
 					if (i < TSize)
 					{
 						String tb = "<table>";
