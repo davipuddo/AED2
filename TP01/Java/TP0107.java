@@ -15,7 +15,7 @@ public class TP0107
 			URL url;
 			InputStream is = null;
 			BufferedReader br;
-			String line;
+			String line = "";
 
 			try
 			{
@@ -75,7 +75,10 @@ public class TP0107
 		boolean result = false;
 		if (isLetter(c) && !isVogal(c) && !isNum(c))
 		{
-			result = true;
+			if (c=='b'||c=='c'||c=='d'||c=='f'||c=='g'||c=='h'||c=='j'||c=='k'||c=='l'||c=='m'||c=='n'||c=='p'||c=='q'||c=='r'||c=='s'||c=='t'||c=='v'||c=='w'||c=='x'||c=='y'||c=='z')
+			{
+				result = true;
+			}
 		}
 		return (result);
 	}
@@ -125,7 +128,7 @@ public class TP0107
 					// Contar consoantes
 					if (isConsonant(buffer))
 					{
-						result[22] = result[22] + 1;
+						result[22]++;
 					}
 					
 					// Contar elementos <br/>
@@ -140,7 +143,8 @@ public class TP0107
 						}
 						if (w == 5)
 						{
-							result[23] = result[23] + 1;
+							result[23]++;
+							result[22]--;					// Remover 'b e 'r' do contador de consoantes
 						}
 					}
 					
@@ -156,7 +160,10 @@ public class TP0107
 						}
 						if (w == 7)
 						{
-							result[24] = result[24] + 1;
+							result[24]++;
+							result[22] -= 3;			// Remover 't', 'b' e 'l' contador de consoantes
+							result[0]--;				// Remover 'a' e 'e' do contador de vogais
+							result[1]--;				// 				==
 						}
 					}
 					i++;
