@@ -56,7 +56,7 @@ public class TP0107
 	// Retornar TRUE se o caractere for uma vogal
 	public static boolean isVogal (char c)
 	{
-		return (c == 'a' || c == 'A' || c == 'e' || c == 'E' || c == 'i' || c == 'I' || c == 'o' || c == 'O' || c == 'U');
+		return (c == 'a' || c == 'e' || c == 'i' || c == 'o' || c == 'u');
 	}
 
 	public static boolean isNum (char c)
@@ -75,10 +75,7 @@ public class TP0107
 		boolean result = false;
 		if (isLetter(c) && !isVogal(c) && !isNum(c))
 		{
-			if (c=='b'||c=='c'||c=='d'||c=='f'||c=='g'||c=='h'||c=='j'||c=='k'||c=='l'||c=='m'||c=='n'||c=='p'||c=='q'||c=='r'||c=='s'||c=='t'||c=='v'||c=='w'||c=='x'||c=='y'||c=='z')
-			{
-				result = true;
-			}
+			result = true;
 		}
 		return (result);
 	}
@@ -202,14 +199,14 @@ public class TP0107
 					
 					// Mostrar dados
 					String values = "aeiouáéíóúàèìòùãõâêîôû";
-					int Vsize = values.length();				// = 22
+					int Vsize = 22;				// = values.length()
 					for (int i = 0; i < Vsize; i++)
 					{
 						System.out.print (values.charAt(i) + "(" + counter[i] + ") ");
 					}
-					System.out.print ("consoante(" + counter[Vsize] + ") ");
-					System.out.print ("<br>(" + counter[Vsize+1] + ") ");
-					System.out.println ("<table>(" + counter[Vsize+2] + ") " + SiteName);
+					System.out.print ("consoante(" + counter[22] + ") ");
+					System.out.print ("<br>(" + counter[23] + ") ");
+					System.out.println ("<table>(" + counter[24] + ") " + SiteName);
 				}
 			}
 		}

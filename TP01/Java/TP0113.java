@@ -4,6 +4,31 @@ import java.util.Scanner;
 
 public class TP0113
 {
+	public static int seek (String data, int i)
+	{
+		int limit = 0;
+		int size = data.length();
+		for (int y = 0; y < size; y++)
+		{
+			int c = data.charAt(y);
+			if (c == '(')
+			{
+				limit++;
+			}
+			else if (c == ')')
+			{
+				limit--;
+			}
+
+			if (c == ',' && limit == 0)
+			{
+				i = y;
+				y = size;
+			}
+		}
+		return (i);
+	}
+
 	public static int AlgB (String data, int[] values, int i)
 	{
 		char c = data.charAt(i);
@@ -23,22 +48,17 @@ public class TP0113
 			else if (bf == 'd')	 // AND
 			{
 				// Seek ','
-				while (data.charAt(i) != ',')
-				{
-					i++;
-				}
-				
+				i = seek (data, i);	
+			
+				int other = AlgB (data, values, i+1);
+
 				// Get other's value
 				int other2 = 0;
-				int other = AlgB(data, values, i+1);
-				
 				if (values.length > 2)
 				{
-					while (data.charAt(i) != ',')
-					{
-						i++;
-					}
-					other2 = AlgB(data, values, i+1);
+					// Seek ','
+					i = seek (data, i);
+					other2 = AlgB (data, values, i+1);
 				}
 				else
 				{
@@ -58,21 +78,16 @@ public class TP0113
 			else if (bf == 'r')  // OR
 			{
 				// Seek ','
-				while (data.charAt(i) != ',')
-				{
-					i++;
-				}
-				
+				i = seek (data, i);
+
 				// Get other's value
 				int other = AlgB(data, values, i+1);
 				int other2 = 0;
 	
 				if (values.length > 2)
 				{
-					while (data.charAt(i) != ',')
-					{
-						i++;
-					}
+					// Seek ','
+					i = seek (data, i);
 					other2 = AlgB(data, values, i+1);
 				}
 
