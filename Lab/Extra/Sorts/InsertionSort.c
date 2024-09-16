@@ -3,35 +3,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int BSearch (int* array, int bot, int top, int value)
-{
-	int result = -1;
-	if (array != NULL)
-	{
-		int mid = 0;
-
-		while (bot <= top)
-		{
-			mid = bot + ((double)(top-bot)/2.0);
-
-			if (array[mid] == value)
-			{
-				result = mid+1;
-			}
-
-			if (array[mid] < value)
-			{
-				bot = mid+1;
-			}
-			else
-			{
-				top = mid-1;
-			}
-		}
-	}
-	return (result);
-}
-
 int* Insert (int* array, int size)
 {
 	int* result = NULL;
@@ -51,10 +22,10 @@ int* Insert (int* array, int size)
 			// Sort
 			for (int i = 1; i < size; i++)
 			{
+
 				int tmp = result[i];
 				int j = i-1;
-				int before = BSearch(result, 0, j, tmp);
-				while (j >= before)
+				while (j >= 0 && array[j] > tmp)
 				{
 					result[j+1] = result[j];
 					j--;
@@ -103,3 +74,5 @@ int main (void)
 	}
 	return (0);
 }
+
+
