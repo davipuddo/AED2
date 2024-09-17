@@ -5,36 +5,21 @@
 
 int* Insert (int* array, int size)
 {
-	int* result = NULL;
-	if (array)
+	if (array && size > 0)
 	{
-		// Alloc result array
-		result = (int*)malloc(size*sizeof(int));
-
-		if (result)
+		for (int i = 1; i < size; i++)
 		{
-			// Copy array
-			for (int i = 0; i < size; i++)
-			{
-				result[i] = array[i];
-			}
-			
-			// Sort
-			for (int i = 1; i < size; i++)
-			{
+			int tmp = array[i];
+			int j = i-1;
 
-				int tmp = result[i];
-				int j = i-1;
-				while (j >= 0 && array[j] > tmp)
-				{
-					result[j+1] = result[j];
-					j--;
-				}
-				result[j+1] = tmp;
+			while (j >= 0 && array[j] > tmp)
+			{
+				array[j+1] = array[j];
+				j--;
 			}
+			array[j+1] = tmp;
 		}
 	}
-	return (result);
 }
 
 int main (void)
@@ -42,7 +27,6 @@ int main (void)
 	// Define data
 	int size = 0;
 	int* data = NULL;
-	int* result = NULL;
 
 	// Read size of int array
 	scanf("%d", &size);
@@ -61,14 +45,14 @@ int main (void)
 	}
 	
 	// Sort array
-	result = Insert (data, size);
+	Insert (data, size);
 
 	// Show result
-	if (result)
+	if (data)
 	{
 		for (int i = 0; i < size; i++)
 		{
-			printf ("[%d]", result[i]);
+			printf ("[%d]", data[i]);
 		}
 		printf ("\n");
 	}

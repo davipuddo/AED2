@@ -4,9 +4,9 @@
 #include "util.h"
 
 // Alternative InsertionSort
-void InsertStep (int* data, int n, int color, int step)
+void InsertStep (int* data, int n, int seed, int step)
 {
-	for (int i = (step+color); i < n; i+=step)
+	for (int i = (step+seed); i < n; i+=step)
 	{
 		int tmp = data[i];
 		int y = i-step;
