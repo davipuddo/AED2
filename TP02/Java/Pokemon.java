@@ -349,7 +349,7 @@ public class Pokemon
 				}
 				i++;
 			}
-		}	
+		}
 
 		// Definir id
 		if (values[0] != null)
@@ -468,6 +468,7 @@ public class Pokemon
 		
 		while (stop == false)
 		{
+			p = new Pokemon();
 			try
 			{
 				// Ler posicao

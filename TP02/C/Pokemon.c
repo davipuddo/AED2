@@ -86,6 +86,20 @@ double parseDouble (char* data)
 	return (result);
 }
 
+// Converter uma string para valor booleano
+bool parseBool (char* data)
+{
+	bool result = false;
+	if (data)
+	{
+		if (data[0] == '1' || strcmp(data, "true") == 0 || strcmp(data, "TRUE") == 0)
+		{
+			result = true;
+		}
+	}
+	return (result);
+}
+
 // Lista
 typedef struct list_s
 {
@@ -229,7 +243,7 @@ typedef struct poke_s
 }
 Pokemon;
 
-// Construtores
+// Construtor sem parametros
 Pokemon* newPokemon ()
 {
 	Pokemon* poke = (Pokemon*)malloc(sizeof(Pokemon));
@@ -251,6 +265,7 @@ Pokemon* newPokemon ()
 	return (poke);
 }
 
+// Construtor com parametros
 Pokemon* newPokemonWith (int ID, int gen, char* name, char* des, List* type, List* abili, double w, double h, int cRate, bool L, char* d)
 {
 	Pokemon* poke = newPokemon();
@@ -328,7 +343,6 @@ Pokemon* fromList (char* data)
 
 	if (data)
 	{
-		printf ("%s\n", data);
 		char** values = (char**)malloc(11*sizeof(char*));
 
 		for (int i = 0; i < 11; i++)
@@ -338,20 +352,115 @@ Pokemon* fromList (char* data)
 
 		if (values)
 		{
+			// Copiar valores de data
+			char* copy = calloc((int)strlen(data),sizeof(char));
+			strcpy (copy, data);
+			
+			/* Separar valores */
+
+			// id-gen-name-desc
 			char* token = NULL;
 			int i = 0;
+			token = strtok (copy, ",");	
+			while (i < 3 && token != NULL)
+			{
+				values[i] = token;
+				token = strtok (NULL, ",");
+				i++;
+			}
 			values[i] = token;
 			i++;
 
-			while (i < 4)
+			// Tipos
+				// Limpar saida
+			token = strtok(NULL, "\"");
+			if (token[strlen(token)-2] == ',')
 			{
+				token[strlen(token)-2] = '\0';
+			}
+			else
+			{
+				token[strlen(token)-1] = '\0';
+			}
+			values[i] = token;
+			i++;
+	
+			// peso - altura - captura - lendario - data
+			token = strtok (NULL, "\"");
+			values[i] = token;
+			i++;
+
+			// Altura
+			token = strtok (NULL, "");
+			if (token[1] != ',')
+			{
+				token = strtok(token, ",");
+				values[i] = token;
+			}
+			i++;
+		
+			// Peso
+			if (token[2] != ',')
+			{
+				token = strtok(NULL, ",");
+				values[i] = token;
+			}
+			i++;
+			
+			// Captura - lendario - data
+			if (token[0] == ',')
+			{
+				token = strtok(token, ",");
+				values[i] = token;
 				i++;
 			}
 
-			for (int w = 0; w < 4; w++)
+			while (i < 11 && token != NULL)
 			{
-			//	printf ("%s\n", values[w]);
+				token = strtok(NULL, ", ");	
+				values[i] = token;
+				i++;
 			}
+
+			/* Criar obj */
+
+			result = newPokemon();
+			result->id = parseInt(values[0]);
+			result->generation = parseInt(values[1]);
+			result->name = values[2];
+			result->description = values[3];
+
+			// Corrigir tipos
+			List* tp = newList(3);
+			token = strtok(values[4], ",");
+
+			while (token != NULL)
+			{
+				insert(tp, token);
+				token = strtok(NULL, ",");
+			}
+			result->types = tp;
+
+			// Corrigir abilidades
+			tp = newList(6);
+			token = strtok(values[5], "['");
+
+			while (token != NULL)
+			{
+				if (token[0] != ' ')
+				{
+					insert(tp, token);
+				}
+				token = strtok(NULL, "',]");
+			}
+			result->abilities = tp;
+
+			// Peso - altura - chance - lendario - data
+			result->weight = parseDouble(values[6]);
+			result->height = parseDouble(values[7]);
+			result->captureRate = parseInt(values[8]);
+			result->isLegendary = parseBool(values[9]);	
+			result->date = values[10];
 		}
 		else
 		{
@@ -366,30 +475,85 @@ Pokemon* fromList (char* data)
 	return (result);
 }
 
+// Printar elementos do objeto
 void imprimir (Pokemon* poke)
 {
-	
+	if (!poke)
+	{
+		println ("Dados invalidos!");
+	}
+	else
+	{
+		printf ("[#%d -> %s: %s - [",poke->id,poke->name,poke->description);
+		for (int i = 0; i < poke->types->n; i++)
+		{
+			printf ("'%s'",poke->types->data[i]);
+			if (i < poke->types->n - 1)
+			{
+				printf (", ");
+			}
+		}
+
+		printf ("] - [");
+		for (int i = 0; i < poke->abilities->n; i++)
+		{
+			printf ("'%s'", poke->abilities->data[i]);
+			if (i < poke->abilities->n - 1)
+			{
+				printf (", ");
+			}
+		}
+		printf ("] - %.1lfkg - %.1lfm - %d%% - ", poke->weight, poke->height, poke->captureRate);
+
+		char* buffer = "false";
+		if (poke->isLegendary)
+		{
+			buffer = "true";
+		}
+		printf ("%s - %d gen] - ", buffer, poke->generation);
+
+		for (int i = 0; i < 10; i++)
+		{
+			printf ("%c", poke->date[i]);
+		}
+		println ("");
+	}
 }
 
 
 int main (void)
 {
+	// Variaveis
 	Pokemon* poke = NULL;
 	List* list = ler();
 	bool stop = false;
 
 	while (stop == false)
 	{
+		// Ler entrada
 		char* x = readLine();
 
+		// Condicao de parada
 		if (strcmp(x,"FIM") == 0)
 		{
 			stop = true;
 		}
 		else
 		{
+			// Converter valor
 			int pos = parseInt(x);
-			fromList(list->data[pos]);
+			if (pos <= 801)
+			{
+				poke = fromList(list->data[pos]);
+				if (poke)
+				{
+					imprimir (poke);
+				}
+			}
+			else
+			{
+				println ("Posicao invalida!");
+			}
 		}
 	}
 	return (0);

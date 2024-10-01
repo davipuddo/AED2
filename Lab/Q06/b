@@ -1,0 +1,3 @@
+#!/bin/bash
+./Q06 <a.in
+java Q06 <a.in
