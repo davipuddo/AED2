@@ -1,4 +1,4 @@
-#include "util.h"
+#include "../util.h"
 
 void inter (int* array, int L, int mid, int R)
 {

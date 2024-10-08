@@ -3,6 +3,11 @@
 #include <stdbool.h>
 #include <time.h>
 
+void println (char* x)
+{
+	printf ("%s\n", x);
+}
+
 int ReadInt ()
 {
 	int result = 0;

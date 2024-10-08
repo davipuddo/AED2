@@ -1,7 +1,7 @@
 // 853355 Davi Puddo
 
 #include <iostream>
-#include "util.h"
+#include "../util.h"
 
 // Alternative InsertionSort
 void InsertStep (int* data, int n, int seed, int step)

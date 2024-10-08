@@ -1,4 +1,4 @@
-#include "util.h"
+#include "../util.h"
 
 void construct (int* array, int size)
 {
@@ -11,13 +11,13 @@ void construct (int* array, int size)
 int getBiggestSon (int* array, int i, int size)
 {
 	int result = 0;
-	if (i < size/2.0 || array[2*i] > array[(2*i)+1])
+	if (i == (int)(size/2.0) || array[2*i] > array[(2*i)+1])
 	{
-		result = array[2*i];
+		result = 2*i;
 	}
 	else
 	{
-		result = array[(2*i)+1];
+		result = (2*i)+1;
 	}
 	return (result);
 }
@@ -40,21 +40,32 @@ void reconstruct (int* array, int size)
 	}
 }
 
-void HeapSort (int* array, int n)
+int* HeapSort (int* array, int n)
 {
+	int* tmp = (int*)malloc(n+1*sizeof(int));
+	for (int i = 0; i < n; i++)
+	{
+		tmp[i+1] = array[i];
+	}
+
 	// Construir heap
 	for (int size = 2; size <= n; size++)
 	{
-		construct (array, size);
+		construct (tmp, size);
 	}
 
 	int size = n;
 	while (size > 1)
 	{
-		swap (array, 1, size--);
-		reconstruct (array, size);
+		swap (tmp, 1, size--);
+		reconstruct (tmp, size);
 	}
 
+	for (int i = 0; i < n; i++)
+	{
+		array[i] = tmp[i+1];
+	}
+	return (tmp);
 }
 
 int main (void)

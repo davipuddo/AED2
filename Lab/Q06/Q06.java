@@ -56,41 +56,6 @@ public class Q06
 	}
 
 	// Sorts
-	public static void QuickSortMiddle (int L, int R)
-	{
-		int buffer = (int)((L+R)/2.0);
-		int pivo = data[buffer];	
-		int i = L;
-		int y = R;
-
-		while (i <= y)
-		{
-			while (data[i] < pivo)
-			{
-				i++;
-			}
-			while (data[y] > pivo)
-			{
-				y--;
-			}
-			if (i <= y)
-			{
-				swap(i, y);
-				i++;
-				y--;
-			}
-		}
-
-		if (i < R)
-		{
-			QuickSortMiddle (i, R);
-		}
-		if (L < y)
-		{
-			QuickSortMiddle (L, y);
-		}
-	}
-
 	public static void QuickSortFirst (int L, int R)
 	{
 		int pivo = data[L];
@@ -230,9 +195,15 @@ public class Q06
 	
 	public static void writeA ()
 	{
-		for (int i = 0; i < n; i++)
+		int i = 0;
+
+		int max = Integer.MAX_VALUE;
+		//int max = 99;
+		int val = rand.nextInt(max);
+		for (i = 0; i < n; i++)
 		{
-			data[i] = rand.nextInt(Integer.MAX_VALUE);
+			data[i] = val;
+		//	data[i] = n-i;
 		}
 	}
 	
@@ -248,11 +219,12 @@ public class Q06
 		}
 	}
 
-	public static void TotalTime ()
+	public static double TotalTime ()
 	{
 		double buffer = (end-start);
 		buffer /= 1000000;
-		System.out.println (buffer+"ms");
+		//System.out.println (buffer+"");
+		return (buffer);
 	}
 
 	public static void main (String[] args)
@@ -261,53 +233,60 @@ public class Q06
 
 		n = sc.nextInt();
 		data = new int[n];
-
+		
+		System.out.println("n="+n+"\n");
 		if (data != null)
 		{
+			int qnt = sc.nextInt();
+			double[][] rs = new double[4][qnt];
+			for (int i = 0; i < qnt; i++)
+			{
+				// Escrever vetor
+				writeA();
 
-			// Escrever vetor
-			writeA();
+				int[] buffer = data.clone();
 
-			int[] buffer = data.clone();
+				// Primeiro
+				data = buffer.clone();
+			//	System.out.println ("Pivo no inicio");
+				start = System.nanoTime();
+				QuickSortFirst(0, n-1);
+				end = System.nanoTime();
+				rs[0][i] = TotalTime(); 
 
-			// Meio
-			System.out.println ("Pivo no meio");
-			start = System.nanoTime();
-			QuickSortMiddle(0, n-1);
-			end = System.nanoTime();
-			TotalTime();
+				// Ultimo
+				data = buffer.clone();
+			//	System.out.println ("\nPivo no fim");
+				start = System.nanoTime();
+				QuickSortLast(0, n-1);
+				end = System.nanoTime();
+				rs[1][i] = TotalTime();
 
-			// Primeiro
-			data = buffer.clone();
-			System.out.println ("\nPivo no inicio");
-			start = System.nanoTime();
-			QuickSortFirst(0, n-1);
-			end = System.nanoTime();
-			TotalTime();
+				// Aleatorio
+				data = buffer.clone();
+			//	System.out.println ("\nPivo aleatorio");
+				start = System.nanoTime();
+				QuickSortRand(0, n-1);
+				end = System.nanoTime();
+				rs[2][i] = TotalTime();
 
-			// Ultimo
-			data = buffer.clone();
-			System.out.println ("\nPivo no fim");
-			start = System.nanoTime();
-			QuickSortLast(0, n-1);
-			end = System.nanoTime();
-			TotalTime();
-
-			// Aleatorio
-			data = buffer.clone();
-			System.out.println ("\nPivo aleatorio");
-			start = System.nanoTime();
-			QuickSortRand(0, n-1);
-			end = System.nanoTime();
-			TotalTime();
-
-			// Mediana
-			data = buffer.clone();
-			System.out.println ("\nPivo na mediana");
-			start = System.nanoTime();
-			QuickSortMedian(0, n-1);
-			end = System.nanoTime();
-			TotalTime();
+				// Mediana
+				data = buffer.clone();
+			//	System.out.println ("\nPivo na mediana");
+				start = System.nanoTime();
+				QuickSortMedian(0, n-1);
+				end = System.nanoTime();
+				rs[3][i] = TotalTime();
+			}
+			for (int i = 0; i < 4; i++)
+			{
+				double x = 0.0;
+				for (int y = 0; y < qnt; y++)
+				{
+					x += rs[i][y];
+				}
+				System.out.println (x/(double)qnt);
+			}
 		}
 	}
 }

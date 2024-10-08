@@ -1,6 +1,6 @@
 // 853355 Davi Puddo
 
-#include "util.h"
+#include "../util.h"
 #include <iostream>
 
 void QuickSort (int* data, int L, int R)
