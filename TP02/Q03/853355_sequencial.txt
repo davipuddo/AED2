@@ -1,0 +1,1 @@
+853355	Tempo de execucao: 0.001351505 ms	Numero de comparacoes: 2575	

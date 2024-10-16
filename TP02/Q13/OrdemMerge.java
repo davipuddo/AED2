@@ -498,11 +498,19 @@ class TP
 		pokes[y] = tmp;
 		mv++;
 	}
+
+	public static void printAll (Pokemon[] pokes, int n)
+	{
+		for (int i = 0; i < n; i++)
+		{
+			pokes[i].imprimir();
+		}
+	}
 }
 
-public class OrdemSelecao extends TP
-{	
-	public static boolean swapName (String x, String y)
+public class OrdemMerge extends TP
+{
+	public static boolean swapNames (String x, String y)
 	{
 		char c1 = '0';
 		char c2 = '0';
@@ -529,42 +537,121 @@ public class OrdemSelecao extends TP
 			cmp++;
 		}
 		while (i < size && c1 == c2);
+
+		// Em caso de igualdade escolher o menor
+		if (i == size && x.length() < y.length())
+		{
+			res = true;
+		}
+		cmp++;
+
 		cmp += i;
 
 		return (res);
 	}
 
-	public static void sort (Pokemon[] pokes)
+	public static boolean swapTypes (Pokemon px, Pokemon py)
 	{
-		for (int i = 0; i < pokes.length-1; i++)
+		boolean res = false;
+
+		String tx = px.getTypes().get(0);
+		String ty = py.getTypes().get(0);
+
+		if (tx.equals(ty))
 		{
-			int sm = i;
-			
-			for (int y = i+1; y < pokes.length; y++)
+			// Desempate
+			res = swapNames(px.getName(), py.getName());
+		}
+		else
+		{
+			res = swapNames(tx, ty);
+		}
+		cmp++;
+
+		return (res);
+	}
+
+	public static void Inter (Pokemon[] pokes, int L, int M, int R)
+	{
+		// Tamanho dos subarrays
+		int nL = (M+1)-L;
+		int nR = (R-M);
+
+		// Criar subarrays
+		Pokemon[] pokeL = new Pokemon[nL+1];
+		Pokemon[] pokeR = new Pokemon[nR+1];
+
+		// Guardar "maior" valor
+		String max = "zzzzzz";
+		ArrayList<String> tmp = new ArrayList<String>(3);
+		tmp.add(max);
+
+		pokeL[nL] = new Pokemon();
+		pokeR[nR] = new Pokemon();
+
+		pokeL[nL].setTypes(tmp);
+		pokeR[nR].setTypes(tmp);
+
+		int iL = 0;
+		int iR = 0;
+		int i = 0;
+
+		for (iL = 0; iL < nL; iL++)
+		{
+			pokeL[iL] = pokes[L+iL];
+			mv++;
+			cmp++;
+		}
+		cmp++;
+
+		for (iR = 0; iR < nR; iR++)
+		{
+			pokeR[iR] = pokes[(M+1)+iR];
+			mv++;
+			cmp++;
+		}
+		cmp++;
+
+		// Juntar subvetores
+		for (iL = iR = 0, i = L; i <= R; i++)
+		{
+			if (swapTypes (pokeL[iL], pokeR[iR]))
 			{
-				if (swapName(pokes[y].getName(), pokes[sm].getName()))
-				{
-					sm = y;
-				}
-				cmp++;
+				pokes[i] = pokeL[iL++];
+				mv++;
 			}
-			cmp++;
+			else
+			{
+				pokes[i] = pokeR[iR++];
+				mv++;
+			}
+			cmp += 2;
+		}
+		cmp++;
+	}
 
-			swapPokes (pokes, i, sm);
-
-			cmp++;
+	public static void sort (Pokemon[] pokes, int L, int R)
+	{
+		if (L < R)
+		{
+			int M = (int)((double)(L+R)/2.0);	// Meio
+			sort (pokes, L, M);
+			sort (pokes, M+1, R);
+			Inter (pokes, L, M, R);
 		}
 		cmp++;
 	}
 
 	public static void main (String[] args)
 	{
+		// Dados
 		Pokemon[] pokes = null;
 		int[] lines = new int[80];
 		String[] list = Pokemon.ler();
 		Scanner sc = new Scanner(System.in);
 		String x = null;
 
+		// Ler entrada
 		int i = 0;
 		x = sc.nextLine();
 		while (!x.equals("FIM"))
@@ -583,15 +670,15 @@ public class OrdemSelecao extends TP
 			pokes[i] = new Pokemon();
 			pokes[i].fromList(list[p]);
 		}
-		
+
+		// Ordenar pokemons
 		start = Instant.now();
-		sort (pokes);
+		sort (pokes, 0, size-1);
 		end = Instant.now();
 
-		for (i = 0; i < size; i++)
-		{
-			pokes[i].imprimir();
-		}
-		printStats("selecao");
+		printAll(pokes, size);
+
+		// Gravar log do programa
+		printStats("mergesort");
 	}
 }

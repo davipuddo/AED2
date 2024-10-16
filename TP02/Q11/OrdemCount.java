@@ -498,11 +498,19 @@ class TP
 		pokes[y] = tmp;
 		mv++;
 	}
+
+	public static void printAll (Pokemon[] pokes, int n)
+	{
+		for (int i = 0; i < n; i++)
+		{
+			pokes[i].imprimir();
+		}
+	}
 }
 
-public class OrdemSelecao extends TP
+public class OrdemCount extends TP
 {	
-	public static boolean swapName (String x, String y)
+	public static boolean swapNames (String x, String y)
 	{
 		char c1 = '0';
 		char c2 = '0';
@@ -534,37 +542,130 @@ public class OrdemSelecao extends TP
 		return (res);
 	}
 
-	public static void sort (Pokemon[] pokes)
+	public static boolean swapCRate (Pokemon px, Pokemon py)
 	{
-		for (int i = 0; i < pokes.length-1; i++)
+		boolean res = false;
+		int x = px.getCaptureRate();
+		int y = py.getCaptureRate();
+
+		if (x > y)
 		{
-			int sm = i;
-			
-			for (int y = i+1; y < pokes.length; y++)
+			res = true;
+		}
+		else if (x == y)
+		{
+			// Desempate
+			res = swapNames (py.getName(), px.getName());
+		}
+		cmp++;
+		return (res);
+	}
+
+	public static int getMax (Pokemon[] pokes)
+	{
+		int max = 0;
+		for (int i = 0; i < pokes.length; i++)
+		{
+			int buffer = pokes[i].getCaptureRate();
+			if (max < buffer)
 			{
-				if (swapName(pokes[y].getName(), pokes[sm].getName()))
-				{
-					sm = y;
-				}
+				max = buffer;
+			}
+		}
+		return (max);
+	}
+
+	// Desempate
+	public static void ReSort (Pokemon[] pokes)
+	{
+		for (int i = 1; i < pokes.length; i++)
+		{
+			Pokemon tmp = pokes[i];
+			int y = i-1;
+
+			while (y >= 0 && swapCRate(pokes[y], tmp))
+			{
+				pokes[y+1] = pokes[y];
+				y--;
 				cmp++;
 			}
 			cmp++;
 
-			swapPokes (pokes, i, sm);
+			pokes[y+1] = tmp;
+			mv++;
 
 			cmp++;
 		}
 		cmp++;
 	}
 
+	public static void sort (Pokemon[] pokes)
+	{
+		Pokemon[] res = new Pokemon[pokes.length];
+
+		// Encontrar maior valor
+		int max = getMax(pokes);
+		int size = max+1;
+
+		int[] count = new int [size];
+		
+		// Guardar 0 em todas as posicoes
+		/*for (int i = 0; i < size; i++)
+		{
+			count[i] = 0;
+		}*/
+
+		// Contar valores
+		for (int i = 0; i < pokes.length; i++)
+		{
+			int pos = pokes[i].getCaptureRate();
+			count[pos]++;
+			cmp++;
+		}
+		cmp++;
+	
+		// Cumulativo
+		int buffer = 0;
+		for (int i = 0; i < size; i++)
+		{
+			buffer += count[i];
+			count[i] = buffer;
+			cmp++;
+		}
+		cmp++;
+
+		for (int i = pokes.length-1; i >= 0; i--)
+		{
+			int CR = pokes[i].getCaptureRate();
+			res[count[CR]-1] = pokes[i];
+			count[CR]--;
+
+			mv++;
+			cmp++;
+		}
+		cmp++;
+
+		for (int i = 0; i < pokes.length; i++)
+		{
+			pokes[i] = res[i];
+			mv++;
+			cmp++;
+		}
+		cmp++;
+
+		ReSort(pokes); // Desempatar valores
+	}
+
 	public static void main (String[] args)
 	{
+		// Dados
 		Pokemon[] pokes = null;
 		int[] lines = new int[80];
 		String[] list = Pokemon.ler();
 		Scanner sc = new Scanner(System.in);
 		String x = null;
 
+		// Ler entrada
 		int i = 0;
 		x = sc.nextLine();
 		while (!x.equals("FIM"))
@@ -583,15 +684,15 @@ public class OrdemSelecao extends TP
 			pokes[i] = new Pokemon();
 			pokes[i].fromList(list[p]);
 		}
-		
+
+		// Ordenar pokemons
 		start = Instant.now();
 		sort (pokes);
 		end = Instant.now();
 
-		for (i = 0; i < size; i++)
-		{
-			pokes[i].imprimir();
-		}
-		printStats("selecao");
+		printAll(pokes, size);
+
+		// Gravar log do programa
+		printStats("countingsort");
 	}
 }

@@ -500,7 +500,7 @@ class TP
 	}
 }
 
-public class OrdemSelecao extends TP
+public class OrdemHeap extends TP
 {	
 	public static boolean swapName (String x, String y)
 	{
@@ -534,24 +534,104 @@ public class OrdemSelecao extends TP
 		return (res);
 	}
 
-	public static void sort (Pokemon[] pokes)
+	public static boolean swapHeight (Pokemon px, Pokemon py)
 	{
-		for (int i = 0; i < pokes.length-1; i++)
+		boolean res = false;
+		double x = px.getHeight();
+		double y = py.getHeight();
+
+		if (x > y)
 		{
-			int sm = i;
-			
-			for (int y = i+1; y < pokes.length; y++)
+			res = true;
+		}
+		else if (x == y)
+		{
+			// Desempate
+			res = swapName (py.getName(), px.getName());
+		}
+		cmp++;
+		return (res);
+	}
+	
+	// Heap sort
+	public static void construct (Pokemon[] pokes, int n)
+	{
+		int i = n;
+		while (i > 1 && swapHeight(pokes[i], pokes[(int)(i/2.0)]))
+		{
+			swapPokes (pokes, i, (int)(i/2.0));
+			i /= 2.0;
+		}
+		cmp += 2;
+	}
+
+	// Encontrar maior filho
+	public static int biggestSon (Pokemon[] pokes, int n, int i)
+	{
+		int res = 0;
+		if (2*i == n || swapHeight(pokes[2*i], pokes[(2*i)+1]))
+		{
+			res = 2*i;
+		}
+		else
+		{
+			res = (2*i) + 1;
+		}
+		cmp++;
+		return (res);
+	}
+
+	public static void reconstruct (Pokemon[] pokes, int n)
+	{
+		int i = 1;
+		while (i <= (int)(n/2.0))
+		{
+			int son = biggestSon (pokes, n, i);
+			if (!swapHeight(pokes[i], pokes[son]))
 			{
-				if (swapName(pokes[y].getName(), pokes[sm].getName()))
-				{
-					sm = y;
-				}
-				cmp++;
+				swapPokes (pokes, i, son);
+				i = son;
+			}
+			else
+			{
+				i = n;
 			}
 			cmp++;
+		}
+		cmp++;
+	}
 
-			swapPokes (pokes, i, sm);
+	public static void sort (Pokemon[] pokes)
+	{
+		Pokemon[] tmp = new Pokemon [pokes.length+1];
+		for (int i = 0; i < pokes.length; i++)
+		{
+			tmp[i+1] = pokes[i];
+			cmp++;
+		}
+		cmp++;
 
+		// Construir heap
+		for (int n = 2; n < pokes.length; n++)
+		{
+			construct (tmp, n);
+			cmp++;
+		}
+		cmp++;
+
+		// Destruir heap
+		int n = pokes.length;
+		while (n > 1)
+		{
+			swapPokes (tmp, 1, n--);
+			reconstruct (tmp, n);
+			cmp++;
+		}
+		cmp++;
+
+		for (int i = 0; i < pokes.length; i++)
+		{
+			pokes[i] = tmp[i+1];
 			cmp++;
 		}
 		cmp++;
@@ -559,12 +639,14 @@ public class OrdemSelecao extends TP
 
 	public static void main (String[] args)
 	{
+		// Dados
 		Pokemon[] pokes = null;
 		int[] lines = new int[80];
 		String[] list = Pokemon.ler();
 		Scanner sc = new Scanner(System.in);
 		String x = null;
 
+		// Ler entrada
 		int i = 0;
 		x = sc.nextLine();
 		while (!x.equals("FIM"))
@@ -584,14 +666,18 @@ public class OrdemSelecao extends TP
 			pokes[i].fromList(list[p]);
 		}
 		
+		// Ordenar pokemons
 		start = Instant.now();
 		sort (pokes);
 		end = Instant.now();
 
+		// Mostrar pokemons
 		for (i = 0; i < size; i++)
 		{
 			pokes[i].imprimir();
 		}
-		printStats("selecao");
+
+		// Gravar log do programa
+		printStats("heap");
 	}
 }

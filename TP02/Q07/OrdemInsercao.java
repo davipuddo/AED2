@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.Date;
 import java.util.InputMismatchException;
+import java.util.Calendar;
 import java.io.*;
 import java.text.*;
 import java.time.*;
@@ -452,16 +453,16 @@ class Pokemon
 	}
 }
 
-class TP
+public class OrdemInsercao
 {
 	// Elementos globais
 	static Instant start;
 	static Instant end;
 	static int cmp = 0;
 	static int mv = 0;
-
+	
 	// Gravar log do programa
-	protected static void printStats(String name)
+	private static void printStats(String name)
 	{
 		// Calcular tempo
 		double time = (Duration.between(start, end).getNano() / 1000000000.0);
@@ -482,27 +483,7 @@ class TP
 			e.printStackTrace();
 		}
 	}
-
-	public static void swap (int[] array, int x, int y)
-	{
-		int tmp = array[x];
-		array[x] = array[y];
-		array[y] = tmp;
-		mv++;
-	}
-
-	public static void swapPokes (Pokemon[] pokes, int x, int y)
-	{
-		Pokemon tmp = pokes[x];
-		pokes[x] = pokes[y];
-		pokes[y] = tmp;
-		mv++;
-	}
-}
-
-public class OrdemSelecao extends TP
-{	
-	public static boolean swapName (String x, String y)
+	public static boolean swapName (String x, String y)	
 	{
 		char c1 = '0';
 		char c2 = '0';
@@ -534,24 +515,83 @@ public class OrdemSelecao extends TP
 		return (res);
 	}
 
+	public static boolean swapDate (Pokemon px, Pokemon py)
+	{
+		boolean result = false;
+
+		// Ler data
+		Date dx = px.getCaptureDate();
+		Date dy = py.getCaptureDate();
+
+		// Criar obj
+		Calendar cx = Calendar.getInstance();
+		Calendar cy = Calendar.getInstance();
+		cx.setTime(dx);
+		cy.setTime(dy);
+
+		// Gardar data em dois vetores
+		int[] x = new int[3];
+		int[] y = new int[3];
+
+		x[0] = cx.get(Calendar.YEAR);
+		x[1] = cx.get(Calendar.MONTH);
+		x[2] = cx.get(Calendar.DATE);
+
+		y[0] = cy.get(Calendar.YEAR);
+		y[1] = cy.get(Calendar.MONTH);
+		y[2] = cy.get(Calendar.DATE);
+	
+		// Operacao logica
+		if (x[0] == y[0])
+		{
+			if (x[1] == y[1])
+			{
+				if (x[2] == y[2])
+				{
+					// Desempate com o nome
+					result = swapName (px.getName(), py.getName());	
+				}
+				else if (x[2] > y[2])
+				{
+					result = true;
+				}
+				cmp++;
+			}
+			else if (x[1] > y[1])
+			{
+				result = true;
+			}
+			cmp++;
+		}
+		else if (x[0] > y[0])
+		{
+			result = true;
+		}
+		cmp++;
+		return (result);
+	}
+
 	public static void sort (Pokemon[] pokes)
 	{
-		for (int i = 0; i < pokes.length-1; i++)
+		for (int i = 1; i < pokes.length; i++)
 		{
-			int sm = i;
+			Pokemon tmp = pokes[i];
+			int y = i-1;
 			
-			for (int y = i+1; y < pokes.length; y++)
+			while (y >= 0 && swapDate(pokes[y], tmp))
 			{
-				if (swapName(pokes[y].getName(), pokes[sm].getName()))
-				{
-					sm = y;
-				}
+				// Shift
+				pokes[y+1] = pokes[y];
+				y--;
+
+				// Contadores
+				mv++;
 				cmp++;
 			}
 			cmp++;
 
-			swapPokes (pokes, i, sm);
-
+			pokes[y+1] = tmp;
+			mv++;
 			cmp++;
 		}
 		cmp++;
@@ -592,6 +632,6 @@ public class OrdemSelecao extends TP
 		{
 			pokes[i].imprimir();
 		}
-		printStats("selecao");
+		printStats("insercao");
 	}
 }

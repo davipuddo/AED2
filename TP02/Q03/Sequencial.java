@@ -14,7 +14,6 @@ import java.text.*;
 
 class Pokemon
 {
-
 	// Atributos
 	private int id;
 	private int generation;
@@ -465,22 +464,23 @@ public class Sequencial
 	static double end = 0.0;
 
 	// Procurar nome na lista de pokemons
-	public static boolean find (Pokemon[] poke, String query)
+	public static boolean find (Pokemon[] poke, String query, int Pn)
 	{
 		boolean result = false;
-		for (int i = 0; i < poke.length; i++)	 // Counter++
+		for (int i = 0; i < Pn; i++)
 		{
-			if (poke[i].getName().equals(query)) // Counter++
+			if (poke[i].getName().equals(query))
 			{
 				result = true;
 			}
-			counter++;
+			counter += 2;
 		}
+		counter++;
 		return (result);
 	}
 
 	// Gravar tempo de execucao e numero de comparacoes em um arquivo
-	private static void printStats()
+	private static void printStats(String name)
 	{
 		// Calcular tempo
 		double buffer = ((double)(end-start)/1000000000.0);
@@ -488,7 +488,7 @@ public class Sequencial
 		// Abrir arquivo
 		try
 		{
-			PrintWriter w = new PrintWriter("853355-sequencial.txt");
+			PrintWriter w = new PrintWriter("853355_"+name+".txt");
 			w.write("853355\t");
 			w.write("Tempo de execucao: "+buffer+" ms\t");
 			w.write("Numero de comparacoes: "+counter+"\t");
@@ -516,8 +516,8 @@ public class Sequencial
 		file = p.ler();
 
 		// Inicializar arrays
-		query = new String[25];
-		pokes = new Pokemon[51];
+		query = new String[30];
+		pokes = new Pokemon[60];
 			
 		// Ler pokemons
 		int i = 0;
@@ -540,6 +540,7 @@ public class Sequencial
 
 		// 
 		stop = false;
+		int Pn = i;
 		i = 0;
 
 		// Ler nomes
@@ -555,13 +556,15 @@ public class Sequencial
 				query[i] = x;
 				i++;
 			}
-		}	
+		}
+		int Nn = i;
+		i = 0;
 		
 		// Procurar nomes
-		start = System.nanoTime(); 					// Iniciar contagem de tempo
-		for (int y = 0; y < query.length; y++)
+		start = System.nanoTime();  				// Iniciar contagem de tempo
+		for (int y = 0; y < Nn; y++)
 		{
-			boolean result = find (pokes, query[y]);
+			boolean result = find (pokes, query[y], Pn);
 			if (result)
 			{
 				System.out.println ("SIM");
@@ -576,6 +579,6 @@ public class Sequencial
 		end = System.nanoTime();
 
 		// Enviar dados para arquivo
-		printStats();
+		printStats("sequencial");
 	}
 }

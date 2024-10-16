@@ -1,1 +1,0 @@
-853355	Tempo de execucao: 3.05972E-4	Numero de comparacoes: 2919	Numero de movimentacoes: 680
