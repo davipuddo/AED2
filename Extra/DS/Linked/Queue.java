@@ -19,7 +19,7 @@ public class Queue
 	{
 		int x = -1;
 		Cell tmp = head.link;
-		if (tmp != null)
+		if (tmp != null && tmp != tail)
 		{
 			x = tmp.data;
 			if (tmp.link != null)
