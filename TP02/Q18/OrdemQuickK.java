@@ -508,7 +508,7 @@ class TP
 	}
 }
 
-public class OrdemSelectionK extends TP
+public class OrdemQuickK extends TP
 {
 	public static boolean swapNames (String x, String y)
 	{
@@ -550,25 +550,105 @@ public class OrdemSelectionK extends TP
 		return (res);
 	}
 
-	// Ordenar primeiros k Pokemons
-	public static void sort (Pokemon[] pokes, int k)
+	public static boolean swapGen (Pokemon px, Pokemon py)
 	{
-		for (int i = 0; i < k; i++)
+		boolean res = false;
+
+		int x = px.getGeneration();
+		int y = py.getGeneration();
+		
+		if (x > y)
 		{
-			int sm = i;
-			for (int y = i+1; y < pokes.length; y++)
+			res = true;
+			System.out.println ("teste"); 
+		}
+		else if (x == y)
+		{
+			res = swapNames(py.getName(), px.getName());
+		}
+		cmp += 2;
+		
+		return (res);
+	}
+
+	// Ordenar primeiros k Pokemons
+	public static void Qsort (Pokemon[] pokes, int L, int R)
+	{
+		int tmp = (int)((double)(L+R)/2.0);
+		int pivo = pokes[tmp].getGeneration();
+		int i = L;
+		int y = R;
+
+		while (i <= y)
+		{
+			while (pokes[i].getGeneration() < pivo)
 			{
-				if (swapNames(pokes[y].getName(), pokes[sm].getName()))
-				{
-					sm = y;
-				}
-				cmp += 2;
+				i++;
+				cmp++;
 			}
-			cmp++;
-			swapPokes (pokes, sm, i);
-			cmp++;
+
+			while (pokes[y].getGeneration() > pivo)
+			{
+				y--;
+				cmp++;
+			}
+			
+			if (i <= y)
+			{
+				swapPokes (pokes, i, y);
+				i++;
+				y--;
+			}
+			cmp += 4;
 		}
 		cmp++;
+
+		if (i < R)
+		{
+			Qsort (pokes, i, R);
+		}
+		cmp++;
+
+		if (L < y)
+		{
+			Qsort (pokes, L, y);
+		}
+		cmp++;
+	}
+
+	public static void sort (Pokemon[] pokes, int n)
+	{
+		if (pokes != null && n > 0)
+		{
+			Qsort (pokes, 0, n-1);
+			ReSort(pokes, n);
+		}
+		cmp++;
+	}
+
+	public static void ReSort (Pokemon[] pokes, int n)
+	{
+		for (int i = 1; i < n; i++)
+		{
+			Pokemon tmp = pokes[i];
+			int y = i-1;
+
+			while (y >= 0 && swapGen(pokes[y], tmp))
+			{
+				pokes[y+1] = pokes[y];
+				y--;
+
+				cmp++;
+				mv++;
+			}
+			cmp++;
+
+			pokes[y+1] = tmp;
+			
+			mv++;
+
+			cmp++;
+		}
 	}
 
 	public static void main (String[] args)
@@ -603,12 +683,12 @@ public class OrdemSelectionK extends TP
 
 		// Ordenar pokemons
 		start = Instant.now();
-		sort (pokes, k);
+		sort (pokes, size);
 		end = Instant.now();
 
 		printAll(pokes, k);
 
 		// Gravar log do programa
-		printStats("selecao");
+		printStats("quicksort");
 	}
 }

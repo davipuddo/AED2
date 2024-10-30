@@ -498,117 +498,259 @@ class TP
 		pokes[y] = tmp;
 		mv++;
 	}
-
-	public static void printAll (Pokemon[] pokes, int n)
-	{
-		for (int i = 0; i < n; i++)
-		{
-			pokes[i].imprimir();
-		}
-	}
 }
 
-public class OrdemSelectionK extends TP
+public class Pokedex
 {
-	public static boolean swapNames (String x, String y)
+	private Pokemon[] data;
+	private int n;
+
+	// Construtor com parametros
+	public Pokedex (int size)
 	{
-		char c1 = '0';
-		char c2 = '0';
-		boolean res = false;
-		int size = 0;
-		int i = 0;
-	
-		size = x.length();
-		if (y.length() < size)
+		if (size > 0)
 		{
-			size = y.length();
-		}
-		cmp++;
-
-		do
-		{
-			c1 = x.charAt(i);
-			c2 = y.charAt(i);
-			if (c1 < c2)
+			data = new Pokemon[size];
+			for (int i = 0; i < size; i++)
 			{
-				res = true;
+				data[i] = new Pokemon();
 			}
-			i++;
-			cmp++;
 		}
-		while (i < size && c1 == c2);
+	}
 
-		// Em caso de igualdade escolher o menor
-		if (i == size && x.length() < y.length())
+	// Construtor padrao
+	public Pokedex ()
+	{
+		this(80);
+	}
+
+	public Pokemon get (int pos)
+	{
+		Pokemon res = null;
+		if (pos >= 0 && pos < n)
 		{
-			res = true;
+			res = data[pos];
 		}
-		cmp++;
+		return (res);
+	}	
 
-		cmp += i;
+	// Inserir na posicao [p]
+	public void insert (Pokemon poke, int pos)
+	{
+		if (poke != null && pos >= 0 && pos < data.length)
+		{
+			for (int i = n; i > pos; i--)
+			{
+				data[i] = data[i-1];
+			}
+			data[pos] = poke;
+			n++;
+		}
+		else
+		{
+			System.out.println ("Parametros invalidos!");
+		}
+	}
 
+	// Inserir no inicio
+	public void insertStart (Pokemon poke)
+	{
+		insert(poke, 0);
+	}
+
+	// Inserir no fim
+	public void insertEnd (Pokemon poke)
+	{
+		insert(poke, n);
+	}
+	
+	// Remover na posicao [p]
+	public Pokemon remove (int pos)
+	{
+		Pokemon res = null;
+		if (data != null && n > 0 && pos >= 0 && pos < n)
+		{
+			System.out.println ("(R) " + data[pos].getName()); 
+
+			Pokemon tmp = data[pos];
+			int N = n-1;
+
+			for (int i = pos; i < N; i++)
+			{
+				data[i] = data[i+1];
+			}
+			res = tmp;
+			n--;
+		}
 		return (res);
 	}
 
-	// Ordenar primeiros k Pokemons
-	public static void sort (Pokemon[] pokes, int k)
+	// Remover no inicio
+	public Pokemon removeStart ()
 	{
-		for (int i = 0; i < k; i++)
+		return (remove(0));
+	}
+
+	// Remover no fim
+	public Pokemon removeEnd ()
+	{
+		return (remove(n-1));
+	}
+
+	// Inserir pokemon da lista
+	public void fromList (String line, int pos)
+	{
+		if (pos < 0)
 		{
-			int sm = i;
-			for (int y = i+1; y < pokes.length; y++)
-			{
-				if (swapNames(pokes[y].getName(), pokes[sm].getName()))
-				{
-					sm = y;
-				}
-				cmp += 2;
-			}
-			cmp++;
-			swapPokes (pokes, sm, i);
-			cmp++;
+			System.out.println ("teste"); 
 		}
-		cmp++;
+		if (pos >= 0 && pos < data.length)
+		{
+			Pokemon tmp = new Pokemon();
+			tmp.fromList(line);
+			insert(tmp, pos);
+		}
+		else
+		{
+			System.out.println ("Parametros invalidos!"); 
+		}
+	}
+
+	public void fromListEnd (String line)
+	{
+		if (line != null)
+		{
+			fromList(line, n);
+		}
+	}
+
+	public void fromListStart (String line)
+	{
+		if (line != null)
+		{
+			fromList(line, 0);
+		}
+	}
+				
+	// Mostrar todos os Pokemon
+	public void print ()
+	{
+		if (data != null && n > 0 && n < data.length)
+		{
+			for (int i = 0; i < n; i++)
+			{
+				data[i].imprimir();
+			}
+		}
+		else
+		{
+			System.out.println ("Dados invalidos!"); 
+		}
+	}
+
+	public void printLine ()
+	{
+		if (data != null && n > 0 && n < data.length)
+		{
+			for (int i = 0; i < n; i++)
+			{
+				System.out.print("["+i+"] ");
+				data[i].imprimir();
+			}
+		}
+		else
+		{
+			System.out.println ("Dados invalidos!"); 
+		}
 	}
 
 	public static void main (String[] args)
 	{
-		// Dados
-		Pokemon[] pokes = null;
-		int[] lines = new int[80];
-		String[] list = Pokemon.ler();
+		// Definir dados
 		Scanner sc = new Scanner(System.in);
-		String x = null;
-		int k = 10;
+		String[] list = Pokemon.ler();
+		Pokedex pokes = new Pokedex();
+		String line = "";
+		String[] buffer = null;
+		int i = 0;
+		int n = 0;
+		boolean stop = false;
 
 		// Ler entrada
-		int i = 0;
-		x = sc.nextLine();
-		while (!x.equals("FIM"))
+		while (stop == false)
 		{
-			lines[i] = Integer.parseInt(x);
-			x = sc.nextLine();
+		 	line = sc.nextLine();
+
+			if (line.equals("FIM"))
+			{
+				stop = true;
+			}
+			else 
+			{
+				// Converter
+				int x = Integer.parseInt(line);
+
+				// Inserir na lista
+				pokes.fromListEnd(list[x]);
+				i++;
+			}
+		}
+	
+		line = sc.nextLine();
+		n = Integer.parseInt(line);
+		i = 0;
+
+		while (i < n)
+		{
+			line = sc.nextLine();
+			buffer = line.split(" ");
+			int x = -1;
+			int y = -1;
+
+			if (buffer.length >= 2)
+			{
+				x = Integer.parseInt(buffer[1]);
+			}
+
+			if (buffer.length == 3)
+			{
+				y = Integer.parseInt(buffer[2]);
+			}
+
+			if (line.charAt(0) == 'I') // Inserir
+			{
+				if (line.charAt(1) == 'I') // Inicio
+				{
+					pokes.fromListStart(list[x]);
+				}
+				else if (line.charAt(1) == 'F') // Fim
+				{
+					pokes.fromListEnd(list[x]);
+				}
+				else // N
+				{
+					pokes.fromList(list[y], x);
+				}
+			}
+			else // Remover
+			{
+				if (line.charAt(1) == 'I') // Inicio
+				{
+					pokes.removeStart();
+				}
+				else if (line.charAt(1) == 'F') // Fim
+				{
+					pokes.removeEnd();
+				}
+				else // N
+				{
+					pokes.remove(x);
+				}
+			}
 			i++;
 		}
-		int size = i;
 
-		pokes = new Pokemon[size];
-		
-		for (i = 0; i < size; i++)
-		{
-			int p = lines[i];
-			pokes[i] = new Pokemon();
-			pokes[i].fromList(list[p]);
-		}
-
-		// Ordenar pokemons
-		start = Instant.now();
-		sort (pokes, k);
-		end = Instant.now();
-
-		printAll(pokes, k);
-
-		// Gravar log do programa
-		printStats("selecao");
+		// Mostrar Pokemons
+		pokes.printLine();
 	}
 }

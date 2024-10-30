@@ -381,8 +381,53 @@ List* ler ()
 	return (result);
 }
 
+// Printar elementos do objeto
+void imprimir (Pokemon* poke)
+{
+	if (!poke)
+	{
+		println ("Dados invalidos!");
+	}
+	else
+	{
+		printf ("[#%d -> %s: %s - [",poke->id,poke->name,poke->description);
+		for (int i = 0; i < poke->types->n; i++)
+		{
+			printf ("'%s'",poke->types->data[i]);
+			if (i < poke->types->n - 1)
+			{
+				printf (", ");
+			}
+		}
+
+		printf ("] - [");
+		for (int i = 0; i < poke->abilities->n; i++)
+		{
+			printf ("'%s'", poke->abilities->data[i]);
+			if (i < poke->abilities->n - 1)
+			{
+				printf (", ");
+			}
+		}
+		printf ("] - %.1lfkg - %.1lfm - %d%% - ", poke->weight, poke->height, poke->captureRate);
+
+		char* buffer = "false";
+		if (poke->isLegendary)
+		{
+			buffer = "true";
+		}
+		printf ("%s - %d gen] - ", buffer, poke->generation);
+
+		for (int i = 0; i < 10; i++)
+		{
+			printf ("%c", poke->date[i]);
+		}
+		println ("");
+	}
+}
+
 // Ler linha do arquivo e criar um novo objeto
-Pokemon* fromList (char* data)
+Pokemon* fromLine (char* data)
 {	
 	Pokemon* result = NULL;
 
@@ -502,9 +547,6 @@ Pokemon* fromList (char* data)
 			result->captureRate = parseInt(values[8]);
 			result->isLegendary = parseBool(values[9]);	
 			result->date = values[10];
-
-			// Liberar memoria
-			free(copy);
 		}
 		else
 		{
@@ -519,60 +561,195 @@ Pokemon* fromList (char* data)
 	return (result);
 }
 
-// Printar elementos do objeto
-void imprimir (Pokemon* poke)
+Pokemon* fromList (List* list, int pos)
 {
-	if (!poke)
+	char* tmp = NULL;
+	Pokemon* poke = NULL;
+
+	if (list && pos >= 0)
 	{
-		println ("Dados invalidos!");
+		if (pos < list->n)
+		{
+			tmp = list->data[pos];
+			poke = fromLine(tmp);
+		}
+	}
+	return (poke);
+}
+
+// Pokedex (Lista de Pokemons)
+typedef struct pokedex_s
+{
+	Pokemon** data;
+	int length;
+	int n;
+}
+Pokedex;
+
+// "Construtor" da lista de Pokemons
+Pokedex* newPokedex (int l)
+{
+	Pokedex* this = (Pokedex*)malloc(sizeof(Pokedex));
+	if (this)
+	{
+		this->data = NULL;
+		this->length = 0;
+		this->n = -1;
+
+		if (l > 0)
+		{
+			this->length = l;
+			this->n = 0;
+			this->data = (Pokemon**)malloc(l*sizeof(Pokemon*));
+
+			if (this->data)
+			{
+				for (int i = 0; i < l; i++)
+				{
+					this->data[i] = newPokemon();
+				}
+			}
+			else
+			{
+				println ("Falta de espaco");
+			}
+		}
+		else
+		{
+			println ("Parametros invalidos");
+		}
 	}
 	else
 	{
-		printf ("[#%d -> %s: %s - [",poke->id,poke->name,poke->description);
-		for (int i = 0; i < poke->types->n; i++)
+		println ("Falta de espaco");
+	}
+	return (this);
+}
+
+void insertDex (Pokedex* dex, Pokemon* poke, int pos)
+{
+	if (dex && poke)
+	{
+		if (dex->n < dex->length)
 		{
-			printf ("'%s'",poke->types->data[i]);
-			if (i < poke->types->n - 1)
+			if (pos >= 0 && pos < dex->length)
 			{
-				printf (", ");
+				for (int i = dex->n; i > pos; i--)
+				{
+					dex->data[i] = dex->data[i-1];
+				}
+				dex->data[pos] = poke;
+				dex->n++;
+			}
+			else
+			{
+				println ("Posicao invalida");
 			}
 		}
-
-		printf ("] - [");
-		for (int i = 0; i < poke->abilities->n; i++)
+		else
 		{
-			printf ("'%s'", poke->abilities->data[i]);
-			if (i < poke->abilities->n - 1)
-			{
-				printf (", ");
-			}
+			println ("Dex cheia");
 		}
-		printf ("] - %.1lfkg - %.1lfm - %d%% - ", poke->weight, poke->height, poke->captureRate);
-
-		char* buffer = "false";
-		if (poke->isLegendary)
-		{
-			buffer = "true";
-		}
-		printf ("%s - %d gen] - ", buffer, poke->generation);
-
-		for (int i = 0; i < 10; i++)
-		{
-			printf ("%c", poke->date[i]);
-		}
-		println ("");
+	}
+	else
+	{
+		println ("Dados invalidos");
 	}
 }
 
-// Printar um arranjo de pokemons
-void printPokes (Pokemon** poke, int n)
+// Inserir no inicio
+void insertDexStart (Pokedex* dex, Pokemon* poke)
 {
-	if (poke && n > 0)
+	insertDex(dex, poke, 0);
+}
+
+void insertDexEnd (Pokedex* dex, Pokemon* poke)
+{
+	insertDex(dex, poke, dex->n);
+}
+
+Pokemon* removeDex (Pokedex* dex, int pos)
+{
+	Pokemon* res = NULL;
+	if (dex)
 	{
-		for (int i = 0; i < n; i++)
+		if (dex->n > 0)
 		{
-			imprimir (poke[i]);
+			if (pos >= 0 && pos < dex->n)
+			{
+				printf ("(R) %s\n", dex->data[pos]->name);
+				res = dex->data[pos];
+
+				int N = dex->n-1;
+				for (int i = pos; i < N; i++)
+				{
+					dex->data[i] = dex->data[i+1];
+				}
+				dex->n--;
+			}
+			else
+			{
+				println ("Posicao invalida");
+			}
 		}
+		else
+		{
+			println ("Dex vazia");
+		}
+	}
+	else 
+	{
+		println ("Dados invalidso");
+	}
+	return (res);
+}
+
+Pokemon* removeDexStart (Pokedex* dex)
+{
+	Pokemon* res = removeDex(dex, 0);
+	return (res);
+}
+
+Pokemon* removeDexEnd (Pokedex* dex)
+{
+	Pokemon* res = removeDex(dex, dex->n - 1);
+	return (res);
+}
+
+void printDex (Pokedex* dex)
+{
+	if (dex && dex->data)
+	{
+		if (dex->length > 0 && dex->n > 0)
+		{
+			for (int i = 0; i < dex->n; i++)
+			{
+				imprimir (dex->data[i]);
+			}
+		}
+	}
+	else
+	{
+		println ("Dados invalidos");
+	}
+}
+
+void printDexPos (Pokedex* dex)
+{
+	if (dex && dex->data)
+	{
+		if (dex->length > 0 && dex->n > 0)
+		{
+			for (int i = 0; i < dex->n; i++)
+			{
+				printf ("[%d] ", i);
+				imprimir (dex->data[i]);
+			}
+		}
+	}
+	else
+	{
+		println ("Dados invalidos");
 	}
 }
 
@@ -581,6 +758,14 @@ static int cmp = 0;
 static int mv = 0;
 static clock_t start;
 static clock_t end;
+
+void swapPokes (Pokemon** pokes, int x, int y)
+{
+	Pokemon* tmp = pokes[x];
+	pokes[x] = pokes[y];
+	pokes[y] = tmp;
+	mv++;
+}
 
 // Gravar arquivo log
 void printStats (char* filename)
@@ -600,154 +785,136 @@ void printStats (char* filename)
 		else
 		{
 			double time = ((double)(end-start)/CLOCKS_PER_SEC);
-			fprintf (file, "853355\t%d\t%d\t%lf", cmp, mv, time); 
-			fclose (file);
-		
+			fprintf (file, "853355\t%lf\t%d\t%d", time, cmp, mv); 
+			fclose (file);	
 		}
 	}
 }
-
-// Ordenar pokemons
-void Qsort (Pokemon** pokes, int L, int R)
-{
-	double buffer = ((double)(L+R)/2.0);
-	char* pivo = pokes[(int)buffer]->name;
-	int i = L;
-	int y = R;
-
-	while (i <= y)
-	{
-		while (strcmp(pokes[i]->name, pivo) < 0)
-		{
-			i++;
-		}
-		while (strcmp(pokes[y]->name, pivo) > 0)
-		{
-			y--;
-		}
-		if (i <= y)
-		{
-			Pokemon* tmp = pokes[i];
-			pokes[i] = pokes[y];
-			pokes[y] = tmp;
-
-			i++;
-			y--;
-		}
-	}
-
-	if (i < R)
-	{
-		Qsort (pokes, i, R);
-	}
-	if (y > L)
-	{
-		Qsort (pokes, L, y);
-	}
-}
-
-// Encapsular metodo
-void sort (Pokemon** pokes, int size)
-{
-	if (pokes && size > 0)
-	{
-		Qsort (pokes, 0, size-1);
-	}
-}
-
-// Procurar nomes no arranjo de pokemons
-/*bool search (Pokemon** pokes, List* names)
-{
-	bool result = false;
-	if (pokes && names)
-	{
-		int i = 0;
-		while (i < size && result == false)
-		{
-			result = searchB (pokes, names->data[i]);
-			i++;
-		}
-	}
-	return (result);
-}*/
 
 int main (void)
 {
-	// Dados
-	Pokemon** pokes = NULL;
-	List* list = NULL;
-	List* names = NULL;
-	char* x = NULL;
-	bool stop = false;
-	bool res = false;
+	// Definir dados
+	List* list = ler();
+	Pokedex* dex = newPokedex(70);
+	char* line = NULL;
+	int x = 0;
 	int i = 0;
-	int size = 60;
+	int n = 0;
+	bool stop = false;
 
-	// Ler csv
-	list = ler();
-
-	if (list)
+	// Ler ids
+	while (stop == false) 
 	{
-		// Criar vetor de pokemons
-		pokes = (Pokemon**)malloc(size*sizeof(Pokemon*));
-		names = newList(size,20);
-		if (pokes && names)
-		{	
-			// Ler entrada
-			while (i < size && stop == false)
-			{
-				x = readLine();
-				if (strcmp (x, "FIM") == 0)
-				{
-					stop = true;
-				}
-				else
-				{
-					int id = parseInt(x);
-					pokes[i] = fromList(list->data[id]);
-					i++;
-				}
-			}
-			free(list);
-			free(x);
-			stop = false;
-			size = i;
+		// Ler entrada
+		line = readLine();
 
-			while (i < size && stop == false)
+		if (line)
+		{
+			// Condicao de parada
+			if (strcmp(line, "FIM") == 0)
 			{
-				x = readLine();
-				if (strcmp (x, "FIM") == 0)
-				{
-					stop = true;
-				}
-				else
-				{
-					insert (names, x);
-					i++;
-				}
-			}
-
-			start = clock();
-			
-			// Ordenar pokemons
-			//sort (pokes, size);
-
-			// Procurar
-			//search (pokes, names);
-			imprimir(pokes[1]);
-			end = clock();
-	
-			// Mostrar resultado
-			/*if (res)
-			{
-				println ("SIM");
+				stop = true;			
 			}
 			else
 			{
-				println ("NAO");
-			}*/
-
-			printStats("853355_binaria.txt");
+				// Inserir pokemon
+				x = parseInt(line);
+				Pokemon* poke = fromList(list, x);
+				insertDexEnd(dex, poke);
+			}
+		}
+		else
+		{
+			stop = true;
+			println ("Dados inexistentes");
 		}
 	}
+
+	line = readLine();
+	n = parseInt(line);
+
+	// Fazer alteracoes na pokedex
+	while (i < n)
+	{
+		// Dados
+		line = readLine();
+		int size = (int)strlen(line);
+		char* xc = NULL;
+		char* yc = NULL;
+
+		int x = 0;
+		int y = 0;
+
+		// Quebrar linhas
+		strtok(line, " ");
+
+		if (size > 2)
+		{
+			xc = strtok(NULL, " ");
+			if (xc)
+			{
+				x = parseInt(xc);
+			}
+		}
+		if (size > 3)
+		{
+			yc = strtok(NULL, " ");
+			if (yc)
+			{
+				y = parseInt(yc);
+			}
+		}
+
+		// Operacoes 
+		if (line[0] == 'I') // Inserir
+		{
+			
+			Pokemon* poke = NULL;
+			if (y != 0)
+			{
+				poke = fromList(list, y);
+			}
+			else
+			{
+				poke = fromList(list, x);
+			}
+
+			if (line[1] == 'I') // Inicio
+			{
+				insertDexStart (dex, poke);	
+			}
+			else if (line[1] == 'F') // Fim
+			{
+				insertDexEnd (dex, poke);
+			}
+			else // N
+			{
+				insertDex (dex, poke, x);
+			}
+		}
+		else // Remover
+		{
+			if (line[1] == 'I') // Inicio
+			{
+				removeDexStart (dex);
+			}
+			else if (line[1] == 'F') // Fim
+			{
+				removeDexEnd (dex);
+			}
+			else // N
+			{
+				removeDex (dex, x);
+			}
+		}
+
+		i++;
+	}
+
+	freeList(list);
+
+	// Mostrar resultado
+	printDexPos(dex);
+
+	return(0);
 }

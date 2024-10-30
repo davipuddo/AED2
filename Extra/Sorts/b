@@ -1,0 +1,3 @@
+#!/bin/bash
+gcc -o i InsertionSortKth.c
+./i <a.in
