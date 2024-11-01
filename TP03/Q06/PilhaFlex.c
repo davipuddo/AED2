@@ -682,7 +682,11 @@ Cell* walk (Pokedex* dex, int pos)
 	Cell* res = NULL;
 	if (dex && dex->head)
 	{
-		res = walkR (dex->head->link, 0, pos);
+		res = walkR (dex->head->link, 1, pos);
+		if (!res)
+		{
+
+		}
 	}
 	return (res);
 }
@@ -815,17 +819,25 @@ Pokemon* removeDexEnd (Pokedex* dex)
 	if (dex && dex->head && dex->tail)
 	{
 		// Percorrer lista
-		Cell* ptr = walk(dex, dex->n);
-		res = dex->tail->data;
-		dex->tail = ptr;
+		Cell* ptr = walk(dex, dex->n-1);
 
-		// Segurar apontador
-		ptr = ptr->link;
+		if (ptr)
+		{
+			res = dex->tail->data;
+			dex->tail = ptr;
 
-		// Desconectar dado
-		dex->tail->link = NULL;
+			// Segurar apontador
+			ptr = ptr->link;
 
-		dex->n--;
+			// Desconectar dado
+			dex->tail->link = NULL;
+
+			dex->n--;
+		}
+		else
+		{
+			println ("Acesso invalido!");
+		}
 
 		// Apagar dado da memoria
 		free(ptr);
@@ -857,17 +869,20 @@ Pokemon* removeDex (Pokedex* dex, int pos)
 			{
 				// Parar antes da posicao desejada
 				Cell* ptr = walk(dex, pos-1);
-
-				Cell* x = ptr->link;
-
-				if (ptr && x)
+				
+				if (ptr)
 				{
-					ptr->link = x->link;
-					x->link = NULL;
-					res = x->data;
-				}
 
-				dex->n--;
+					Cell* x = ptr->link;
+
+					if (x)
+					{
+						ptr->link = x->link;
+						x->link = NULL;
+						res = x->data;
+						dex->n--;
+					}
+				}
 			}
 		}
 	}
@@ -985,76 +1000,26 @@ int main (void)
 		line = readLine();
 		int size = (int)strlen(line);
 		char* xc = NULL;
-		char* yc = NULL;
 		int x = 0;
-		int y = 0;
 
 		// Quebrar linhas
 		strtok(line, " ");
 
-		if (size > 2)
-		{
-			xc = strtok(NULL, " ");
-			if (xc)
-			{
-				x = parseInt(xc);
-			}
-		}
-		if (size > 3)
-		{
-			yc = strtok(NULL, " ");
-			if (yc)
-			{
-				y = parseInt(yc);
-			}
-		}
-
+		xc = strtok(NULL, " ");
 		if (xc)
 		{
 			x = parseInt(xc);
 		}
 
-		if (yc)
-		{
-			y = parseInt(yc);
-		}
-
 		// Operacoes 
 		if (line[0] == 'I') // Inserir
 		{
-			Pokemon* poke = fromList(list, x);;
-			if (y != 0)
-			{
-				poke = fromList(list, y);
-			}
-
-			if (line[1] == 'I')
-			{
-				insertDexStart(dex, poke);
-			}
-			else if (line[1] == 'F')
-			{
-				insertDexEnd(dex, poke);
-			}
-			else
-			{
-				insertDex (dex, poke, x);
-			}
+			Pokemon* poke = fromList(list, x);
+			insertDexEnd(dex, poke);
 		}
-		else // Remover
+		else if (line[0] == 'R') // Remover
 		{
-			if (line[1] == 'I')
-			{
-				printf("(R) %s\n",removeDexStart(dex)->name);
-			}
-			else if (line[1] == 'F')
-			{
-				printf("(R) %s\n",removeDexEnd(dex)->name);
-			}
-			else
-			{
-				printf("(R) %s\n", removeDex(dex, x)->name);
-			}
+			printf("(R) %s\n", removeDexEnd(dex)->name);
 		}
 		i++;
 	}
