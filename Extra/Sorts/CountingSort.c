@@ -25,7 +25,7 @@ int* CountingSort (int* array, int n)
 
 		// Criar vetor auxiliar e zerar valores
 		int auxSize = (max+1);
-		int* aux = (int*)malloc(auxSize*sizeof(int));	
+		int aux [auxSize];
 
 		for (int i = 0; i < auxSize; i++)
 		{

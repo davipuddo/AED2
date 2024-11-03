@@ -1,5 +1,6 @@
 #include "../util.h"
 
+// Construir heap
 void construct (int* array, int size)
 {
 	for (int i = size; i > 1 && array[i] > array[(int)(i/2.0)]; i /= 2.0)
@@ -8,16 +9,18 @@ void construct (int* array, int size)
 	}
 }
 
+// Encontrar maior filho
 int getBiggestSon (int* array, int i, int size)
 {
 	int result = 0;
-	if (2*i == size || array[2*i] > array[(2*i)+1])
+	int I = 2*i;
+	if (I == size || array[I] > array[(I)+1])
 	{
-		result = 2*i;
+		result = I;
 	}
 	else
 	{
-		result = (2*i)+1;
+		result = (I)+1;
 	}
 	return (result);
 }
@@ -42,7 +45,11 @@ void reconstruct (int* array, int size)
 
 void HeapSort (int* array, int n)
 {
+	// Vetor auxiliar
 	int tmp[n+1];
+	tmp[0] = 0;
+	
+	// "Mover" dados para a direita
 	for (int i = 0; i < n; i++)
 	{
 		tmp[i+1] = array[i];
@@ -57,10 +64,12 @@ void HeapSort (int* array, int n)
 	int size = n;
 	while (size > 1)
 	{
-		swap (tmp, 1, size--);
+		swap (tmp, 1, size);
+		size = size - 1;
 		reconstruct (tmp, size);
 	}
 
+	// "Mover" dados para a esquerda
 	for (int i = 0; i < n; i++)
 	{
 		array[i] = tmp[i+1];
