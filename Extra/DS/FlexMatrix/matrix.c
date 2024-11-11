@@ -201,7 +201,6 @@ void print (Matrix* m)
 			ptr = row;
 		}
 		println ("");
-
 	}
 	else
 	{

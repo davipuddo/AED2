@@ -611,10 +611,17 @@ Pokemon* fromList (List* list, int pos)
 	return (poke);
 }
 
+// Dados estaticos
+static int cmp = 0;
+static int mv = 0;
+static clock_t start;
+static clock_t end;
+
 typedef struct poke_cell_s
 {
 	Pokemon* data;
-	struct poke_cell_s* link;
+	struct poke_cell_s* front;
+	struct poke_cell_s* back;
 }
 Cell;
 
@@ -627,7 +634,8 @@ Cell* newCell (Pokemon* poke)
 	if (this)
 	{
 		this->data = NULL;
-		this->link = NULL;
+		this->front = NULL;
+		this->back = NULL;
 		
 		if (poke)
 		{
@@ -647,9 +655,9 @@ void freeCell (Cell* c)
 {
 	if (c)
 	{
-		if (c->link)
+		if (c->front)
 		{
-			freeCell (c->link);
+			freeCell (c->front);
 		}
 		free(c);
 	}
@@ -695,34 +703,91 @@ void freeDex (Pokedex* dex)
 	}
 }
 
-// Percorrer lista
-Cell* walkR(Cell* ptr, int i, int pos)
-{
-	Cell* res = NULL;
-	if (ptr->link && i < pos)
-	{
-		res = walkR (ptr->link, i+1, pos);
-	}
-	else if (i == pos)
-	{
-		res = ptr;
-	}
-	return (res);
-}
-
 // Percorrer lista encapsulada
 Cell* walk (Pokedex* dex, int pos)
 {
-	Cell* res = NULL;
-	if (dex && dex->head)
+	Cell* ptr = NULL;
+	if (dex && dex->head && dex->tail)
 	{
-		res = walkR (dex->head->link, 1, pos);
-		if (!res)
+		if (dex->head->front)
 		{
+			if (pos < dex->n)
+			{
+				int m = (dex->n/2.0);
+				if (pos <= m)
+				{
+					ptr = dex->head->front;	
+					int i = 0;
+					while (ptr && i < pos)
+					{
+						ptr = ptr->front;
+						i++;
+						cmp+=2;
+						mv++;
+					}
+				}
+				else
+				{
+					ptr = dex->tail;
+					int i = dex->n-1;
+					while (ptr && i > pos)
+					{
+						ptr = ptr->back;
+						i--;
+						cmp+=2;
+						mv++;
+					}
+				}
 
+				if (!ptr)
+				{
+					println ("vazia");
+				}
+				cmp += 3;
+			}
+			else
+			{
+				println ("Posicao invalida");
+			}
+			cmp++;
+		}
+		else
+		{
+			println ("Dex vazia");
+		}
+		cmp++;
+	}
+	else
+	{
+		println ("Dados invalidos");
+	}
+	cmp++;
+	return (ptr);
+}
+
+void insertDexStart (Pokedex* dex, Pokemon* poke)
+{
+	if (dex && dex->head && poke)
+	{
+		Cell* tmp = newCell(poke);
+
+		tmp->front = dex->head->front;
+		if (tmp->front)
+		{
+			tmp->front->back = tmp;
+		}
+		tmp->back = dex->head;
+		dex->head->front = tmp;
+
+		if (dex->tail == dex->head)
+		{
+			dex->tail = tmp;
 		}
 	}
-	return (res);
+	else
+	{
+		println ("Dados invalidos");
+	}
 }
 
 // Inserir pokemon no fim
@@ -730,8 +795,10 @@ void insertDexEnd (Pokedex* dex, Pokemon* poke)
 {
 	if (dex && dex->head && dex->tail && poke)
 	{
-		dex->tail->link = newCell(poke);
-		dex->tail = dex->tail->link;
+		Cell* tmp = newCell(poke);
+		tmp->back = dex->tail;
+		dex->tail->front = tmp;
+		dex->tail = tmp;
 		dex->n++;
 	}
 	else
@@ -746,62 +813,19 @@ Pokemon* removeDexStart (Pokedex* dex)
 	Pokemon* res = NULL;
 	if (dex && dex->head)
 	{
-		if (dex->head->link)
+		if (dex->head->front)
 		{
-			Cell* ptr = dex->head->link;
-			res = clone(ptr->data);
-			dex->head->link = ptr->link;
+			res = clone(dex->head->front->data);
+			Cell* ptr = dex->head->front;
+			ptr->back = NULL;
+			dex->head->front = ptr->front;
+			ptr->front = NULL;
 			free(ptr);
-
-			dex->n--;
-
-			if (dex->n <= 0)
-			{
-				dex->tail = dex->head;
-			}
 		}
 		else
 		{
-			println ("Lista vazia!");
+			println ("Dex vazia");
 		}
-	}
-	else
-	{
-		println ("Dados invalidos!");
-	}
-	return (res);
-}
-
-int average (Pokedex* dex)
-{
-	int avg = 0;
-	if (dex)
-	{
-		Cell* ptr = dex->head->link;
-		do
-		{
-			avg += ptr->data->captureRate;
-			ptr = ptr->link;
-
-		} while (ptr);
-
-		double tmp = (avg / (double)dex->n);
-		avg = ceil(tmp);
-		printf ("Média: %d\n", avg);
-	}
-}
-
-Pokemon* inse (Pokedex* dex, Pokemon* poke)
-{
-	Pokemon* res = NULL;
-	if (dex && poke)
-	{
-		if (dex->n >= 5)
-		{
-			res = removeDexStart(dex);
-		}
-		insertDexEnd(dex, poke);
-		average(dex);
 	}
 	else
 	{
@@ -818,9 +842,9 @@ void printDexR (Cell* ptr, int i)
 		printf ("[%d] ", i);
 		imprimir(ptr->data);
 
-		if (ptr->link)
+		if (ptr->front)
 		{
-			printDexR(ptr->link, i+1);
+			printDexR(ptr->front, i+1);
 		}
 	}
 }
@@ -830,22 +854,97 @@ void printDex(Pokedex* dex)
 {
 	if (dex)
 	{
-		printDexR(dex->head->link, 0);
+		printDexR(dex->head->front, 0);
 	}
 }
 
-// Dados estaticos
-static int cmp = 0;
-static int mv = 0;
-static clock_t start;
-static clock_t end;
-
-void swapPokes (Pokemon** pokes, int x, int y)
+void printBackR (Cell* ptr)
 {
-	Pokemon* tmp = pokes[x];
-	pokes[x] = pokes[y];
-	pokes[y] = tmp;
-	mv++;
+	imprimir(ptr->data);
+
+	if (ptr->back)
+	{
+		printBackR (ptr->back);
+	}
+}
+
+void prinB (Pokedex* dex)
+{
+	if (dex)
+	{
+		printBackR (dex->tail);
+	}
+}
+
+void swapPokes (Pokedex* dex, int px, int py)
+{
+	if (dex)
+	{
+		cmp++;
+		Cell* x = walk(dex, px);
+		Cell* y = walk(dex, py);
+
+		if (x && y)
+		{
+			cmp++;
+			Pokemon* tmp = x->data;
+			x->data = y->data;
+			y->data = tmp;
+			mv++;
+		}
+	}
+}
+
+void qs (Pokedex* dex, int L, int R)
+{
+	int tmp = ((L+R)/2.0);
+	Pokemon* pivo = walk(dex, tmp)->data;
+	int pg = pivo->generation;
+	char* pn = pivo->name;
+	int i = L;
+	int y = R;
+
+	while (i <= y)
+	{
+		cmp++;
+		while (walk(dex, i)->data->generation < pg || ( walk(dex, i)->data->generation == pg && strcmp(walk(dex, i)->data->name, pn) < 0) )
+		{
+			i++;
+			cmp+=3;
+		}
+		while (walk(dex, y)->data->generation > pg || ( walk(dex, y)->data->generation == pg && strcmp(walk(dex, y)->data->name, pn) > 0) )
+		{
+			y--;
+			cmp+=3;
+		}
+		if (i <= y)
+		{
+			swapPokes (dex, i, y);
+			i++;
+			y--;
+			cmp++;
+		}
+	}
+	
+	if (i < R)
+	{
+		qs (dex, i, R);
+		cmp++;
+	}
+	if (y > L)
+	{
+		qs (dex, L, y);
+		cmp++;
+	}
+}
+
+void QuickSort(Pokedex* dex)
+{
+	if (dex)
+	{
+		qs (dex, 0, dex->n-1);
+		cmp++;
+	}
 }
 
 // Gravar arquivo log
@@ -901,7 +1000,7 @@ int main (void)
 				// Inserir pokemon
 				x = parseInt(line);
 				Pokemon* poke = fromList(list, x);
-				inse (dex, poke);
+				insertDexEnd (dex, poke);
 			}
 		}
 		else
@@ -911,50 +1010,20 @@ int main (void)
 		}
 	}
 
-	line = readLine();
-	n = parseInt(line);
-
-	// Fazer alteracoes na pokedex
-	while (i < n)
-	{
-		// Dados
-		line = readLine();
-		int size = (int)strlen(line);
-		char* xc = NULL;
-		int x = 0;
-
-		// Quebrar linhas
-		strtok(line, " ");
-
-		xc = strtok(NULL, " ");
-		if (xc)
-		{
-			x = parseInt(xc);
-		}
-
-		// Operacoes 
-		if (line[0] == 'I') // Inserir
-		{
-			Pokemon* poke = fromList(list, x);
-			inse(dex, poke);
-		}
-		else if (line[0] == 'R') // Remover
-		{
-			printf("(R) %s\n", removeDexStart(dex)->name);
-		}
-		i++;
-	}
+	// Ordenar Lista
+	QuickSort (dex);
 
 	// Liberar csv
 	freeList(list);
-
-	println ("");
 
 	// Mostrar resultado
 	printDex (dex);
 
 	// Liberar pokedex
 	freeDex(dex);
+
+	// Gravar arquivo log
+	printStats("853355_quicksort2");
 
 	return(0);
 }
