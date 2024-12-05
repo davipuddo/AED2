@@ -500,225 +500,341 @@ class TP
 	}
 }
 
-public class Pokedex
+class Cell
 {
-	private Pokemon[] data;
-	private int n;
+	public Pokemon data;
+	public Cell front;
+	public Cell back;
 
-	// Construtor com parametros
-	public Pokedex (int size)
+	public Cell (Pokemon x)
 	{
-		if (size > 0)
-		{
-			data = new Pokemon[size];
-			for (int i = 0; i < size; i++)
-			{
-				data[i] = new Pokemon();
-			}
-		}
+		this.data = x;
+		this.front = null;
+		this.back = null;
 	}
 
-	// Construtor padrao
+	public Cell ()
+	{
+		this(null);
+	}
+}
+
+class Pokedex
+{
+	public Cell head;
+	public Cell tail;
+	public int n;
+
 	public Pokedex ()
 	{
-		this(80);
+		this.head = new Cell();
+		this.tail = this.head;
+		this.n = 0;
 	}
 
-	public Pokemon get (int pos)
+	public void insertStart (Pokemon x)
 	{
-		Pokemon res = null;
-		if (pos >= 0 && pos < n)
-		{
-			res = data[pos];
-		}
-		return (res);
-	}	
-
-	// Inserir na posicao [p]
-	public void insert (Pokemon poke, int pos)
-	{
-		if (poke != null && pos >= 0 && pos < data.length)
-		{
-			for (int i = n; i > pos; i--)
-			{
-				data[i] = data[i-1];
-			}
-			data[pos] = poke;
-			n++;
-		}
-		else
-		{
-			System.out.println ("Parametros invalidos!");
-		}
+		Cell tmp = new Cell(x);
+		tmp.front = this.head.front;
+		this.head.front.back = tmp;
+		this.head.front = tmp;
+		this.n++;
 	}
 
-	// Inserir no inicio
-	public void insertStart (Pokemon poke)
-	{
-		insert(poke, 0);
-	}
-
-	// Inserir no fim
-	public void insertEnd (Pokemon poke)
-	{
-		insert(poke, n);
-	}
-	
-	// Remover na posicao [p]
-	public Pokemon remove (int pos)
-	{
-		Pokemon res = null;
-		if (data != null && n > 0 && pos >= 0 && pos < n)
-		{
-			System.out.println ("(R) " + data[pos].getName()); 
-
-			Pokemon tmp = data[pos];
-			int N = n-1;
-
-			for (int i = pos; i < N; i++)
-			{
-				data[i] = data[i+1];
-			}
-			res = tmp;
-			n--;
-		}
-		return (res);
-	}
-
-	// Remover no inicio
 	public Pokemon removeStart ()
 	{
-		return (remove(0));
+		Pokemon res = null;
+		if (this.head != null)
+		{
+			res = this.head.front.data.clone();
+			this.head.front = this.head.front.front;
+			this.n--;
+		}
+		return (res);
 	}
 
-	// Remover no fim
+	public void insertEnd (Pokemon x)
+	{
+		if (this.head != null && this.tail != null)
+		{
+			Cell tmp = new Cell(x);
+			if (this.head.front == null)
+			{
+				this.head.front = tmp;
+				this.tail = tmp;
+			}
+			else
+			{
+				tmp.back = this.tail;
+				this.tail.front = tmp;
+				this.tail = tmp;
+			}
+			this.n++;
+		}	
+	}
+
 	public Pokemon removeEnd ()
 	{
-		return (remove(n-1));
+		Pokemon res = null;
+		if (this.head != null)
+		{
+			Cell ptr = walk(this.n-1);
+			if (ptr != null)
+			{
+				res = this.tail.data.clone();
+				this.tail = ptr;
+				this.tail.front = null;
+				this.n--;
+			}
+		}
+		return (res);
 	}
 
-	// Inserir pokemon da lista
-	public void fromList (String line, int pos)
+	private Cell walk (int pos)
 	{
-		if (pos < 0)
+		Cell res = null;
+		if (pos == 0)
 		{
-			System.out.println ("teste"); 
+			res = this.head;
 		}
-		if (pos >= 0 && pos < data.length)
+		else if (pos > -1)
 		{
-			Pokemon tmp = new Pokemon();
-			tmp.fromList(line);
-			insert(tmp, pos);
+			Cell ptr = this.head;
+			
+			int i = 0;
+			while (ptr.front != null && i < pos)
+			{
+				ptr = ptr.front;
+				i++;
+			}
+
+			if (i == pos)
+			{
+				res = ptr;
+			}
+			else
+			{
+				System.out.println ("Posicao invalida");
+			}
 		}
-		else
+		return (res);
+	}
+
+	private void print (Cell ptr, int i)
+	{
+		if (ptr != null)
 		{
-			System.out.println ("Parametros invalidos!"); 
+			System.out.print ("["+i+"] ");
+			ptr.data.imprimir();
+			print(ptr.front, i+1);
 		}
 	}
 
-	public void fromListEnd (String line)
-	{
-		if (line != null)
-		{
-			fromList(line, n);
-		}
-	}
-
-	public void fromListStart (String line)
-	{
-		if (line != null)
-		{
-			fromList(line, 0);
-		}
-	}
-				
-	// Mostrar todos os Pokemon
 	public void print ()
 	{
-		if (data != null && n > 0 && n < data.length)
+		if (this.head != null && this.head.front != null)
 		{
-			for (int i = 0; i < n; i++)
-			{
-				data[i].imprimir();
-			}
+			print(this.head.front, 0);
 		}
 		else
 		{
-			System.out.println ("Dados invalidos!"); 
+			System.out.println ("Pilha vazia");
 		}
 	}
 
-	public void printLine ()
+	public void printB ()
 	{
-		if (data != null && n > 0 && n < data.length)
+		if (this.head != null && this.head.front != null)
 		{
-			for (int i = 0; i < n; i++)
-			{
-				System.out.print("["+i+"] ");
-				data[i].imprimir();
-			}
+			printB(this.tail, 0);
 		}
 		else
 		{
-			System.out.println ("Dados invalidos!"); 
+			System.out.println ("Pilha vazia");
 		}
 	}
 
-	public static void main (String[] args)
+	private void printB (Cell ptr, int i)
 	{
+		if (ptr != null)
+		{
+			System.out.print ("["+i+"] ");
+			ptr.data.imprimir();
+			printB(ptr.back, i+1);
+		}
+	}
+
+	public void fromListStart(String line)
+	{
+		if (line != null)
+		{
+			Pokemon poke = new Pokemon();
+			poke.fromList(line);
+			insertStart(poke);
+		}
+	}
+
+	public void fromListEnd(String line)
+	{
+		if (line != null)
+		{
+			Pokemon poke = new Pokemon();
+			poke.fromList(line);
+			insertEnd(poke);
+		}
+	}
+
+	public boolean swapNames (String x, String y)
+	{
+		boolean res = false;
+		int sx = 0;
+		int sy = 0;
+
+		char cx = '0';
+		char cy = '0';
+
+		int n = 0;
+		int i = 0;
+
+		sx = x.length();
+		sy = y.length();
+
+		n = Math.min(sx, sy);
+
+		while (i < n && cx == cy)
+		{
+			cx = x.charAt(i);
+			cy = y.charAt(i);
+
+			if (cx > cy)
+			{
+				res = true;
+			}
+			i++;
+		}
+
+		if (i == n && sx > sy)
+		{
+			res = true;
+		}
+		return (res);
+	}
+
+	public boolean swapGen (Pokemon px, Pokemon py)
+	{
+		boolean res = false;
+		if (px != null && py != null)
+		{
+			int gx = px.getGeneration();
+			int gy = py.getGeneration();
+
+			String nx = px.getName();
+			String ny = py.getName();
+
+			if (gx > gy)
+			{
+				res = true;
+			}
+			else if (gx == gy)
+			{
+				res = swapNames(nx, ny);
+			}
+			
+		}
+		return (res);
+	}
+
+	public void swapPokes (Pokemon x, Pokemon y)
+	{
+		if (x != null && y != null)
+		{
+			Pokemon tmp = x;
+			x = y;
+			y = tmp;
+		}
+	}
+
+	public Cell sort (Pokedex dex, Cell L, Cell R)
+	{
+		if (L != null && R != null)
+		{
+			Cell pivo = L;
+			Cell i = L;
+			Cell y = R;
+
+			while (i != y)
+			{
+				while (i != y && swapGen(i.data, pivo.data))
+				{
+					i = i.front;
+				}
+				while (y != i && swapGen(y.data, pivo.data))
+				{
+					y = y.back;
+				}
+				if (i != y)
+				{
+					swapPokes(i.data, y.data);
+					i = i.front;
+					y = y.back;
+				}
+			}
+
+			if (i != R)
+			{
+				dex = sort(dex, i, R);
+			}
+			if (y != L)
+			{
+				dex = sort(dex, L, y);
+			}
+		}
+		return (L);
+	}
+
+	public void sort ()
+	{
+		if (this.head != null && this.head.front != null && this.tail != null)
+		{
+			this.head = sort(thosthis.head.front, this.tail);
+		}
+	}
+}
+
+public class QSort 
+{
+	public static void main(String[] args)
+	{	
 		// Definir dados
 		Scanner sc = new Scanner(System.in);
 		String[] list = Pokemon.ler();
 		Pokedex pokes = new Pokedex();
 		String line = "";
-		String[] buffer = null;
-		int i = 0;
-		int n = 0;
 		boolean stop = false;
+		int n = 0;
+		int x = 0;
 
-		// Ler entrada
-		while (stop == false)
+		// Ler pokemons
+		while (!stop)
 		{
-		 	line = sc.nextLine();
+			line = sc.nextLine();
 
 			if (line.equals("FIM"))
 			{
 				stop = true;
 			}
-			else 
+			else
 			{
-				// Converter
-				int x = Integer.parseInt(line);
-
-				// Inserir na lista
-				pokes.fromListEnd(list[x]);
-				i++;
-			}
-		}
-	
-		line = sc.nextLine();
-		n = Integer.parseInt(line);
-		i = 0;
-
-		while (i < n)
-		{
-			line = sc.nextLine();
-			buffer = line.split(" ");
-			int x = -1;
-
-			if (line.charAt(0) == 'I') // Inserir
-			{
-				x = Integer.parseInt(buffer[1]);
+				x = Integer.parseInt(line);
 				pokes.fromListEnd(list[x]);
 			}
-			else // Remover
-			{
-				pokes.removeEnd();
-			}
-			i++;
 		}
 
-		// Mostrar Pokemons
-		pokes.printLine();
+		// Ordenar
+		pokes.sort();
+
+		// Mostrar pokemons
+		pokes.print();
+
 	}
 }
