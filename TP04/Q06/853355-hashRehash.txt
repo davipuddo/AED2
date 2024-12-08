@@ -1,0 +1,1 @@
+853355	Tempo de execucao: 0.089398968	Numero de comparacoes: 4	Numero de movimentacoes: 0

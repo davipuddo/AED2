@@ -123,6 +123,16 @@ void freeString (char** data, int n)
 	}
 }
 
+int max (int x, int y)
+{
+	int res = x;
+	if (x < y)
+	{
+		res = y;
+	}
+	return (y);
+}
+
 // Lista
 typedef struct list_s
 {
@@ -344,11 +354,8 @@ void freePoke (Pokemon* poke)
 {
 	if (poke)
 	{
-		free(poke->name);
-		free(poke->description);
 		freeList(poke->types);
 		freeList(poke->abilities);
-		free(poke->date);
 	}
 }
 
@@ -642,29 +649,33 @@ void printStats (char* filename)
 	}
 }
 
-typedef struct poke_cell_s
+typedef struct cell_s
 {
 	Pokemon* data;
-	struct poke_cell_s* link;
+	struct cell_s* L;
+	struct cell_s* R;
+	int lvl;
 }
 Cell;
 
-Cell* newCell (Pokemon* poke)
+Cell* newCell(Pokemon* poke)
 {
 	Cell* this = (Cell*)malloc(sizeof(Cell));
+
 	if (this)
 	{
-		this->data = NULL;
 		if (poke)
 		{
-			this->data = clone(poke);
+			this->data = poke;
 		}
-		this->link = NULL;
+		this->L = NULL;
+		this->R = NULL;
+		this->lvl = 1;
 	}
 	return (this);
 }
 
-Cell* freeCell (Cell* x)
+void freeCell (Cell* x)
 {
 	if (x)
 	{
@@ -672,207 +683,249 @@ Cell* freeCell (Cell* x)
 		{
 			freePoke(x->data);
 		}
-		x->link = NULL;
+		x->L = NULL;
+		x->R = NULL;
+		free(x);
 	}
 }
 
-Cell* freeChainCell (Cell* x)
+void freeChainCell (Cell* x)
 {
 	if (x)
 	{
-		freeChainCell(x->link);
+		freeChainCell(x->L);
+		freeChainCell(x->R);
 		freeCell(x);
 	}
 }
 
-void printChainCell (Cell* x)
+int getLevel (Cell* x)
 {
+	int res = 0;
 	if (x)
 	{
-		imprimir (x->data);
-		printChainCell(x->link);
+		res = x->lvl;
+	}
+	return (res);
+}
+
+void setLevel (Cell* x)
+{
+	int L = getLevel(x->L);
+	int R = getLevel(x->R);
+	x->lvl = max(L, R) + 1;
+}
+
+typedef struct avl_s
+{
+	Cell* root;
+}
+AVL;
+
+AVL* newAVL (void)
+{
+	AVL* this = (AVL*)malloc(sizeof(AVL));
+	if (this)
+	{
+		this->root = NULL;
+	}
+	return (this);
+}
+
+void freeAVL (AVL* avl)
+{
+	if (avl)
+	{
+		if (avl->root)
+		{
+			freeChainCell(avl->root);
+		}
+		free(avl);
 	}
 }
 
-bool searchCell (Cell* ptr, char* name)
+void rotR (Cell** ptr)
+{
+	Cell* newRoot = (*ptr)->L;
+	Cell* other = newRoot->R;
+
+	newRoot->R = (*ptr);
+	(*ptr)->L = other;
+
+	setLevel( (*ptr));
+	setLevel(newRoot);
+
+	(*ptr) = newRoot;
+}
+
+void rotL (Cell** ptr)
+{
+	Cell* newRoot = (*ptr)->R;
+	Cell* other = newRoot->L;
+
+	newRoot->L = (*ptr);
+	(*ptr)->R = other;
+
+	setLevel( (*ptr));
+	setLevel(newRoot);
+
+	(*ptr) = newRoot;
+}
+
+void balance (Cell** ptr)
+{
+	if (ptr && (*ptr))
+	{
+		int F = getLevel( (*ptr)->R) - getLevel( (*ptr)->L);
+
+		if (abs(F) < 2)
+		{
+			setLevel(*ptr);
+		}
+		else if (F == 2)
+		{
+			int F2 = getLevel( (*ptr)->R->R) - getLevel( (*ptr)->R->L);
+
+			if (F2 == -1)
+			{
+				rotR(&(*ptr)->R);
+			}
+			rotL(ptr);
+		}
+		else if (F == -2)
+		{
+			int F2 = getLevel( (*ptr)->L->R) - getLevel( (*ptr)->L->L);
+
+			if (F2 == 1)
+			{
+				rotL(&(*ptr)->L);
+			}
+			rotR (ptr);
+		}
+		else
+		{
+			printf ("ERRO\n");
+		}
+	}
+}
+
+void insertAVLR (Cell** ptr, Pokemon* x)
+{
+	if (ptr)
+	{
+		if (!(*ptr))
+		{
+			(*ptr) = newCell(x);
+		}
+		else if (strcmp( (*ptr)->data->name, x->name) > 0)
+		{
+			insertAVLR( &(*ptr)->L, x);
+		}
+		else if (strcmp( (*ptr)->data->name, x->name) < 0)
+		{
+			insertAVLR( &(*ptr)->R, x);
+		}
+		else
+		{
+			printf ("ERRO\n");
+		}
+		balance(ptr);
+	}
+}
+
+void insertAVL (AVL* avl, Pokemon* poke)
+{
+	if (avl && poke)
+	{
+		insertAVLR ( &(avl->root), poke);
+	}
+}
+
+void printCR (Cell* ptr)
+{
+	if (ptr)
+	{
+		printCR(ptr->L);
+		imprimir(ptr->data);
+		printCR(ptr->R);
+	}
+}
+
+void printC (AVL* avl)
+{
+	if (avl)
+	{
+		printCR (avl->root);
+	}
+}
+
+void printPreR (Cell* ptr)
+{
+	if (ptr)
+	{
+		imprimir(ptr->data);
+		printPreR(ptr->L);
+		printPreR(ptr->R);
+	}
+}
+
+void printPre (AVL* avl)
+{
+	if (avl)
+	{
+		printPreR(avl->root);
+	}
+}
+
+bool searchAVLR (Cell* ptr, const char* name)
 {
 	bool res = false;
-	if (ptr && ptr->data && name)
+	if (ptr)
 	{
-		if (strcmp (ptr->data->name, name) == 0)
+		if (strcmp(ptr->data->name, name) == 0)
 		{
 			res = true;
 		}
-		else
+		else if (strcmp(ptr->data->name, name) > 0)
 		{
-			res = searchCell(ptr->link, name);
-		}
-		cmp++;
-	}
-	cmp += 2;
-	return (res);
-}
-
-typedef struct queue_s
-{
-	Cell* head;
-	Cell* tail;
-}
-Queue;
-
-Queue* newQueue (void)
-{
-	Queue* this = (Queue*)malloc(sizeof(Queue));
-	if (this)
-	{
-		this->head = newCell(NULL);
-		this->tail = this->head;
-	}
-}
-
-void insertQueue (Queue* q, Pokemon* poke)
-{
-	if (q && poke)
-	{
-		q->tail->link = newCell(poke);
-		q->tail = q->tail->link;
-	}
-}
-
-void printQueue (Queue* q)
-{
-	if (q && q->head && q->head->link)
-	{
-		printChainCell(q->head->link);
-	}
-	else
-	{
-		println ("Dados invalidos!");
-	}
-}
-
-bool searchQueue (Queue* q, char* name)
-{
-	bool res = false;
-	if (q && q->head && q->head->link && name)
-	{
-		res = searchCell(q->head->link, name);
-		cmp += 4;
-	}
-	return (res);
-}
-
-void freeQueue (Queue* q)
-{
-	if (q)
-	{
-		freeChainCell(q->head);
-		free(q);
-	}
-}
-
-typedef struct hash_s
-{
-	Queue** data;
-	int size;
-}
-HashTable;
-
-HashTable* newTable (int n)
-{
-	HashTable* this = (HashTable*)malloc(sizeof(HashTable));
-	if (this)
-	{
-		if (n <= 0)
-		{
-			this->data = NULL;
-			this->size = 0;
+			printf ("esq ");
+			res = searchAVLR(ptr->L, name);
 		}
 		else
 		{
-			this->data = (Queue**)malloc(n*sizeof(Queue*));
-			for (int i = 0; i < n; i++)
-			{
-				this->data[i] = newQueue();
-			}
-			this->size = n;
+			printf ("dir ");
+			res = searchAVLR(ptr->R, name);
 		}
 	}
-}
-
-int hashCode (char* name, int mod)
-{
-	int res = -1;
-	if (name)
-	{
-		int size = (int)strlen(name);
-
-		res = 0;
-		for (int i = 0; i < size; i++)
-		{
-			res += (int)name[i];
-		}
-		cmp += size;
-
-		res = res % mod;
-	}
-	cmp++;
 	return (res);
 }
 
-void insertTable (HashTable* table, Pokemon* poke)
-{
-	if (table && poke)
-	{
-		int pos = hashCode (poke->name, table->size);
-		insertQueue(table->data[pos], poke);
-	}
-}
-
-bool searchTable (HashTable* table, char* name)
+bool searchAVL (AVL* avl, const char* name)
 {
 	bool res = false;
-	if (table && name)
+	if (avl && name)
 	{
-		int pos = hashCode(name, table->size);
-
-		res = searchQueue(table->data[pos], name);
+		printf ("%s\n", name);
+		printf ("raiz ");
+		res = searchAVLR(avl->root, name);
 
 		if (res)
 		{
-			printf ("=> %s: (Posicao: %d) SIM\n", name, pos);
+			printf ("SIM\n");
 		}
 		else
 		{
-			printf ("=> %s: NAO\n", name);
+			printf ("NAO\n");
 		}
-
-		cmp++;
 	}
-	cmp += 2;
-
 	return (res);
-}
-
-void printTable (HashTable* table)
-{
-	if (table)
-	{
-		for (int i = 0; i < table->size; i++)
-		{
-			if (table->data[i]->head->link)
-			{
-				printQueue(table->data[i]);
-			}
-		}
-	}
 }
 
 int main (void)
 {
 	// Definir dados
 	List* list = ler();
-	HashTable* table = newTable(21);
+	AVL* avl = newAVL();
 	char* line = NULL;
 	int x = 0;
 	bool stop = false;
@@ -895,7 +948,7 @@ int main (void)
 				// Inserir pokemon
 				x = parseInt(line);
 				Pokemon* poke = fromList(list, x);
-				insertTable(table, poke);
+				insertAVL(avl, poke);
 			}
 		}
 		else
@@ -904,6 +957,10 @@ int main (void)
 			println ("Dados inexistentes");
 		}
 	}
+
+	printPre(avl);
+	printf ("\n============================================================\n");
+	printC(avl);
 
 	stop = false;
 
@@ -919,8 +976,7 @@ int main (void)
 			}
 			else
 			{
-				bool res = searchTable(table, line);
-
+				searchAVL(avl, line);
 			}
 		}
 	}
@@ -928,10 +984,10 @@ int main (void)
 	freeList(list);
 
 	// Liberar pokedex
-	//freeTable(table);
+	freeAVL(avl);
 
 	// Gravar arquivo log
-	printStats("853355_hashIndireta");
+	printStats("853355_avl");
 
 	return(0);
 }

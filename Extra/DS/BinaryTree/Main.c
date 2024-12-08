@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
 typedef struct Cell_s
 {
@@ -141,15 +142,82 @@ void rotEsq (Tree* tree)
 	}
 }
 
+static int max;
+
+int getHeightC (Cell* ptr, int x)
+{
+	if (ptr)
+	{
+		int L = getHeightC(ptr->L, x+1);
+		int R = getHeightC(ptr->R, x+1);
+
+		if (x < L)
+		{
+			x = L;
+		}
+		if (x < R)
+		{
+			x = R;
+		}
+	}
+	return (x);
+}
+
+int getHeight (Tree* t)
+{
+	int x = 0;
+	if (t)
+	{
+		max = 0;
+		x = getHeightC(t->root, 0);
+	}
+	return (x);
+}
+
+int readInt ()
+{
+	int x = 0;
+	scanf (" %d", &x);
+	getchar();
+	return (x);
+}
+
+static int c;
+
+void count(Cell* ptr)
+{
+	if (ptr)
+	{
+		count(ptr->L);
+		count(ptr->R);
+		c++;
+	}
+}
+
 int main (void)
 {
 	Tree* t = newTree();
-	insert(t, 1);
-	insert(t, 2);
-	insert(t, 3);
-	printPre(t);
-	rotEsq(t);
-	printf ("Rotate-Left:\n");
-	printPre(t);
+	
+	int x = 0;
+	bool stop = false;
+
+	while (!stop)
+	{
+		x = readInt();
+		if (x != 0)
+		{
+			insert(t, x);
+		}
+		else
+		{
+			stop = true;
+		}
+	}
+	c = 0;
+	count(t->root);
+	printf ("c:%d\n ", c);
+	printf ("\n");
+	printC(t);
+
 	return (0);
 }

@@ -34,6 +34,8 @@ class Cell
 
 		lvl = (Math.max(L, R)) + 1;
 
+		System.out.println ("newLvl: "+lvl);
+
 		this.level = lvl;
 	}
 }
@@ -78,6 +80,7 @@ class Tree
 		if (ptr != null)
 		{
 			int F = Cell.getLevel(ptr.R) - Cell.getLevel(ptr.L);
+			System.out.println ("F: "+F);
 
 			if (F < 2)
 			{
@@ -169,9 +172,12 @@ public class Main
 	{	
 		Tree t = new Tree();
 		t.insert(1);
+		System.out.println ();
 		t.insert(2);
+		System.out.println ();
 		t.insert(3);
-		t.insert(4);
+		System.out.println ();
 		t.print();
+
 	}
 }
