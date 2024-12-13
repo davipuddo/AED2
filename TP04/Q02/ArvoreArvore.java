@@ -533,15 +533,18 @@ class TreeX
 		else if (ptr.name.compareTo(x) > 0)
 		{
 			ptr.L = insert(ptr.L, x);
+			TP.cmp++;
 		}
 		else if (ptr.name.compareTo(x) < 0)
 		{
 			ptr.R = insert(ptr.R, x);
+			TP.cmp++;
 		}
 		else
 		{
 			System.out.println ("ERRO");
 		}
+		TP.cmp++;
 		return (ptr);
 	}
 
@@ -563,13 +566,17 @@ class TreeX
 			{
 				System.out.print ("esq ");
 				res = search(ptr.L, x);
+				TP.cmp++;
 			}
 			else if (ptr.name.compareTo(x) < 0)
 			{
 				System.out.print ("dir ");
 				res = search(ptr.R, x);
+				TP.cmp++;
 			}
+			TP.cmp++;
 		}
+		TP.cmp++;
 		return (res);
 	}
 
@@ -580,6 +587,7 @@ class TreeX
 		{
 			res = search(this.root, x);
 		}
+		TP.cmp++;
 		return (res);
 	}
 
@@ -619,11 +627,13 @@ class TreeY
 		else if (x < ptr.cRate)
 		{
 			ptr.L = insertNum(ptr.L, x);
+			TP.cmp++;
 		}
 		else if (x > ptr.cRate)
 		{
 			ptr.R = insertNum(ptr.R, x);
 		}
+		TP.cmp++;
 		return (ptr);
 	}
 
@@ -638,19 +648,23 @@ class TreeY
 		{
 			ptr = new NodeY (x);
 			ptr.other.insert(name);
+			TP.cmp++;
 		}
 		else if (x < ptr.cRate)
 		{
 			ptr.L = insertPoke(ptr.L, x, name);
+			TP.cmp++;
 		}
 		else if (x > ptr.cRate)
 		{
 			ptr.R = insertPoke(ptr.R, x, name);
+			TP.cmp++;
 		}
 		else
 		{
 			ptr.other.insert(name);
 		}
+		TP.cmp++;
 		return (ptr);
 	}
 
@@ -659,6 +673,7 @@ class TreeY
 		if (name != null)
 		{
 			this.root = insertPoke(this.root, cRate, name);
+			TP.cmp++;
 		}
 	}
 
@@ -678,7 +693,9 @@ class TreeY
 				System.out.print (" DIR ");
 				res = search(ptr.R, name);
 			}
+			TP.cmp += 2;
 		}
+		TP.cmp++;
 		return (res);
 	}
 
@@ -691,6 +708,7 @@ class TreeY
 			System.out.print ("raiz ");
 			res = search(this.root, name);
 		}
+		TP.cmp++;
 		return (res);
 	}
 
@@ -722,6 +740,7 @@ class TreeY
 			poke.fromList(line);
 			insertPoke (poke.getCaptureRate() % 15, poke.getName());
 		}
+		TP.cmp++;
 	}
 }
 
@@ -733,6 +752,8 @@ public class ArvoreArvore
 		TreeY dex = new TreeY();
 		String line = "";
 		boolean stop = false;
+
+		TP.start = Instant.now();
 
 		dex.insertS();
 
@@ -750,7 +771,9 @@ public class ArvoreArvore
 				
 				dex.fromList(x);
 			}
+			TP.cmp += 2;
 		}
+		TP.cmp++;
 		
 		stop = false;
 
@@ -773,8 +796,14 @@ public class ArvoreArvore
 				{
 					System.out.println (" NAO");
 				}
+				TP.cmp++;
 			}
+			TP.cmp += 2;
 		}
+		TP.cmp++;
+
+		TP.end = Instant.now();
+		TP.printStats("arvoreArvore");
 	}
 }
 
