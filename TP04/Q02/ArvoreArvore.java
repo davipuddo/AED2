@@ -500,118 +500,247 @@ class TP
 	}
 }
 
-class Cell
+class NodeX
 {
-	public Pokemon data;
-	public Cell L;
-	public Cell R;
+	public String name;
+	public NodeX L;
+	public NodeX R;
 
-	public Cell (Pokemon x)
+	public NodeX (String x)
 	{
-		this.data = x;
 		this.L = null;
 		this.R = null;
+		this.name = x;
 	}
 
-	public Cell ()
-	{
-		this(null);
-	}
 }
 
-class Pokedex
+class TreeX
 {
-	private Cell root;
+	private NodeX root;
 
-	public Pokedex ()
+	public TreeX ()
 	{
 		this.root = null;
 	}
 
-	private Cell insert (Cell root, Pokemon x)
+	private NodeX insert (NodeX ptr, String x)
 	{
-		if (root == null)
+		if (ptr == null)
 		{
-			root = new Cell(x);
+			ptr = new NodeX(x);
 		}
-		else if (root.data.getName().compareTo(x.getName()) > 0)
+		else if (ptr.name.compareTo(x) > 0)
 		{
-			root.L = insert(root.L, x);
+			ptr.L = insert(ptr.L, x);
+			TP.cmp++;
 		}
-		else if (root.data.getName().compareTo(x.getName()) < 0)
+		else if (ptr.name.compareTo(x) < 0)
 		{
-			root.R = insert(root.R, x);
+			ptr.R = insert(ptr.R, x);
+			TP.cmp++;
 		}
 		else
 		{
-			System.err.println ("ERRO");
+			System.out.println ("ERRO");
 		}
-		return (root);
+		TP.cmp++;
+		return (ptr);
 	}
 
-	public void insert (Pokemon x)
+	public void insert (String x)
 	{
-		this.root = insert (this.root, x);
+		this.root = insert(this.root, x);
 	}
 
-	public void fromList (int x)
+	private boolean search (NodeX ptr, String x)
 	{
-		String line = Pokemon.ler()[x];
-		Pokemon poke = new Pokemon();
-		poke.fromList(line);
-		insert(poke);
+		boolean res = false;
+		if (ptr != null)
+		{
+			if (ptr.name.equals(x))
+			{
+				res = true;
+			}
+			else if (ptr.name.compareTo(x) > 0)
+			{
+				System.out.print ("esq ");
+				res = search(ptr.L, x);
+				TP.cmp++;
+			}
+			else if (ptr.name.compareTo(x) < 0)
+			{
+				System.out.print ("dir ");
+				res = search(ptr.R, x);
+				TP.cmp++;
+			}
+			TP.cmp++;
+		}
+		TP.cmp++;
+		return (res);
+	}
+
+	public boolean search (String x)
+	{
+		boolean res = false;
+		if (x != null)
+		{
+			res = search(this.root, x);
+		}
+		TP.cmp++;
+		return (res);
+	}
+
+}
+
+class NodeY
+{
+	public int cRate;
+	public NodeY L;
+	public NodeY R;
+	public TreeX other;
+
+	public NodeY (int x)
+	{
+		this.L = null;
+		this.R = null;
+		this.cRate = x;
+		this.other = new TreeX ();
+	}
+}
+
+class TreeY
+{
+	private NodeY root;
+
+	public TreeY ()
+	{
+		this.root = null;
+	}
+
+	private NodeY insertNum (NodeY ptr, int x)
+	{
+		if (ptr == null)
+		{
+			ptr = new NodeY(x);
+		}
+		else if (x < ptr.cRate)
+		{
+			ptr.L = insertNum(ptr.L, x);
+			TP.cmp++;
+		}
+		else if (x > ptr.cRate)
+		{
+			ptr.R = insertNum(ptr.R, x);
+		}
+		TP.cmp++;
+		return (ptr);
+	}
+
+	public void insertNum (int x)
+	{
+		this.root = insertNum(this.root, x);
+	}
+
+	private NodeY insertPoke (NodeY ptr, int x, String name)
+	{
+		if (ptr == null)
+		{
+			ptr = new NodeY (x);
+			ptr.other.insert(name);
+			TP.cmp++;
+		}
+		else if (x < ptr.cRate)
+		{
+			ptr.L = insertPoke(ptr.L, x, name);
+			TP.cmp++;
+		}
+		else if (x > ptr.cRate)
+		{
+			ptr.R = insertPoke(ptr.R, x, name);
+			TP.cmp++;
+		}
+		else
+		{
+			ptr.other.insert(name);
+		}
+		TP.cmp++;
+		return (ptr);
+	}
+
+	public void insertPoke (int cRate, String name)
+	{
+		if (name != null)
+		{
+			this.root = insertPoke(this.root, cRate, name);
+			TP.cmp++;
+		}
+	}
+
+	public boolean search (NodeY ptr, String name)
+	{
+		boolean res = false;
+		if (ptr != null)
+		{
+			res = ptr.other.search(name);
+			if (!res)
+			{
+				System.out.print (" ESQ ");
+				res = search(ptr.L, name);
+			}
+			if (!res)
+			{
+				System.out.print (" DIR ");
+				res = search(ptr.R, name);
+			}
+			TP.cmp += 2;
+		}
+		TP.cmp++;
+		return (res);
 	}
 
 	public boolean search (String name)
 	{
 		boolean res = false;
-		Cell i = this.root;
-
-		System.out.println (name);
-		System.out.print ("=>raiz ");
-		while (i != null && !res)
+		if (name != null)
 		{
-			if (i.data.getName().equals(name))
-			{
-				res = true;
-			}
-			else if (i.data.getName().compareTo(name) > 0)
-			{
-				System.out.print ("esq ");
-				i = i.L;
-			}
-			else if (i.data.getName().compareTo(name) < 0)
-			{
-				System.out.print ("dir ");
-				i = i.R;
-			}
+			System.out.println ("=> "+name);
+			System.out.print ("raiz ");
+			res = search(this.root, name);
 		}
-
-		if (res)
-		{
-			System.out.println ("SIM");
-		}
-		else
-		{
-			System.out.println ("NAO");
-		}
-
+		TP.cmp++;
 		return (res);
 	}
 
-	private void printC (Cell ptr)
+	public void insertS ()
 	{
-		if (ptr != null)
-		{
-			printC (ptr.L);
-			ptr.data.imprimir();
-			printC (ptr.R);
-		}
+		this.insertNum (7);
+		this.insertNum (3);
+		this.insertNum (11);
+		this.insertNum (1);
+		this.insertNum (5);
+		this.insertNum (9);
+		this.insertNum (13);
+		this.insertNum (0);
+		this.insertNum (2);
+		this.insertNum (4);
+		this.insertNum (6);
+		this.insertNum (8);
+		this.insertNum (10);
+		this.insertNum (12);
+		this.insertNum (14);
 	}
 
-	public void printC ()
+	public void fromList (int pos)
 	{
-		printC (root);
+		if (pos > 0)
+		{
+			String line = Pokemon.ler()[pos];
+			Pokemon poke = new Pokemon();
+			poke.fromList(line);
+			insertPoke (poke.getCaptureRate() % 15, poke.getName());
+		}
+		TP.cmp++;
 	}
 }
 
@@ -620,9 +749,13 @@ public class ArvoreArvore
 	public static void main (String[] args)
 	{
 		Scanner sc = new Scanner(System.in);
-		Pokedex dex = new Pokedex();
+		TreeY dex = new TreeY();
 		String line = "";
 		boolean stop = false;
+
+		TP.start = Instant.now();
+
+		dex.insertS();
 
 		while (stop == false)
 		{
@@ -638,7 +771,9 @@ public class ArvoreArvore
 				
 				dex.fromList(x);
 			}
+			TP.cmp += 2;
 		}
+		TP.cmp++;
 		
 		stop = false;
 
@@ -652,9 +787,23 @@ public class ArvoreArvore
 			}
 			else
 			{
-				dex.search(line);
+				boolean res = dex.search(line);
+				if (res)
+				{
+					System.out.println (" SIM");
+				}
+				else
+				{
+					System.out.println (" NAO");
+				}
+				TP.cmp++;
 			}
+			TP.cmp += 2;
 		}
+		TP.cmp++;
+
+		TP.end = Instant.now();
+		TP.printStats("arvoreArvore");
 	}
 }
 

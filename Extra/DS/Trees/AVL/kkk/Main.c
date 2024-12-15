@@ -52,7 +52,9 @@ void setLevel (Cell* x)
 {
 	int L = getLevel(x->L);
 	int R = getLevel(x->R);
+	printf ("old-lvl: %d\n", x->lvl);
 	x->lvl = max(L, R) + 1;
+	printf ("new-lvl: %d\n", x->lvl);
 }
 
 typedef struct AVL_s
