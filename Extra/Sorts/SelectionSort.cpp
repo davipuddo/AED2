@@ -6,14 +6,12 @@ void Select (int* array, int n)
 	for (int i = 0; i < N; i++)
 	{
 		int sm = i;
-		int y = i+1;
-		while (y < n)
+		for (int y = i+1; y < n; y++)
 		{
 			if (array[y] < array[sm])
 			{
 				sm = y;
 			}
-			y++;
 		}
 		int tmp = array[sm];
 		array[sm] = array[i];
