@@ -121,6 +121,6 @@ public class Main
 		t.insert("casa");
 		t.insert("carro");
 		t.print();
-		System.out.println (t.search("csa"));
+		System.out.println (t.search("casa"));
 	}
 }
