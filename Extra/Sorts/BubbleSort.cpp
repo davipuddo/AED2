@@ -3,9 +3,10 @@
 void Bubble (int* array, int n)
 {
 	int size = n-1;	// Otimization
-	for (int i = 0; i < n; i++)
+	for (int i = 1; i < n; i++)
 	{
-		int o = 0;						
+		bool swap = false;
+
 		for (int y = 0; y < size; y++)
 		{
 			int bY = y+1; // Otimization
@@ -14,11 +15,12 @@ void Bubble (int* array, int n)
 				int tmp = array[y];
 				array[y] = array[bY];
 				array[bY] = tmp;
-				o++;
+
+				swap = true;
 			}
 		}
 
-		if (o == 0)	// Otimization
+		if (!swap)
 		{
 			i = n;
 		}
