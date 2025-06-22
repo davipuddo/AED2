@@ -118,7 +118,7 @@ public class Main
 	public static void main(String[] args)
 	{	
 		TRIE t = new TRIE();
-		t.insert("casa");
+		t.insert("car");
 		t.insert("carro");
 		t.print();
 		System.out.println (t.search("casa"));
