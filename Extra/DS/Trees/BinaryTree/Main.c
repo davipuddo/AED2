@@ -2,6 +2,12 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
+
+// === Estruturas === //
+
+
+// Celula
+
 typedef struct Cell_s
 {
 	int data;
@@ -22,6 +28,8 @@ Cell* newCell(int x)
 	return (this);
 }
 
+// Arvore
+
 typedef struct Tree_s
 {
 	Cell* root;
@@ -35,8 +43,12 @@ Tree* newTree()
 	{
 		this->root = NULL;
 	}
+	return (this);
 }
 
+// === Metodos === //
+
+// Insercao para celula 
 void insertC (Cell** ptr, int x)
 {
 	if (!(*ptr))
@@ -57,6 +69,7 @@ void insertC (Cell** ptr, int x)
 	}
 }
 
+// Insercao para arvore
 void insert (Tree* tree, int x)
 {
 	if (tree)
@@ -65,28 +78,53 @@ void insert (Tree* tree, int x)
 	}
 	else
 	{	
-		printf ("n\n");
+		printf ("Erro: Arvore Nula\n");
 	}
 }
 
-void printCr (Cell* ptr)
+// === Metodos caminhar === //
+
+// Caminhar centro esquerda recursiva
+void printCLr (Cell* ptr)
 {
 	if (ptr)
 	{
-		printCr(ptr->L);
+		printCLr(ptr->L);
 		printf ("%d\n", ptr->data);
-		printCr(ptr->R);
+		printCLr(ptr->R);
 	}
 }
 
-void printC (Tree* tree)
+// Caminhar centro direita recursiva
+void printCRr (Cell* ptr)
+{
+	if (ptr)
+	{
+		printCRr(ptr->R);
+		printf ("%d\n", ptr->data);
+		printCRr(ptr->L);
+	}
+}
+
+// Caminhar centro esquerda
+void printCL (Tree* tree)
 {
 	if (tree)
 	{
-		printCr(tree->root);
+		printCLr(tree->root);
 	}
 }
 
+// Caminhar centro direita 
+void printCR (Tree* tree)
+{
+	if (tree)
+	{
+		printCRr(tree->root);
+	}
+}
+
+// Caminar pos recursiva
 void printPosR (Cell* ptr)
 {
 	if (ptr)
@@ -97,6 +135,7 @@ void printPosR (Cell* ptr)
 	}
 }
 
+// Caminar pos
 void printPos (Tree* tree)
 {
 	if (tree)
@@ -105,6 +144,7 @@ void printPos (Tree* tree)
 	}
 }
 
+// Caminar pre recursiva
 void printPreR (Cell* ptr)
 {
 	if (ptr)
@@ -115,6 +155,7 @@ void printPreR (Cell* ptr)
 	}
 }
 
+// Caminhar pre
 void printPre (Tree* tree)
 {
 	if (tree)
@@ -122,6 +163,8 @@ void printPre (Tree* tree)
 		printPreR(tree->root);
 	}
 }
+
+// === Metodos Rotacao === //
 
 void rotEsqC (Cell** ptr)
 {
@@ -143,6 +186,8 @@ void rotEsq (Tree* tree)
 }
 
 static int max;
+
+// Calcular altura //
 
 int getHeightC (Cell* ptr, int x)
 {
@@ -174,16 +219,9 @@ int getHeight (Tree* t)
 	return (x);
 }
 
-int readInt ()
-{
-	int x = 0;
-	scanf (" %d", &x);
-	getchar();
-	return (x);
-}
+// Contar numero de nos
 
 static int c;
-
 void count(Cell* ptr)
 {
 	if (ptr)
@@ -194,15 +232,29 @@ void count(Cell* ptr)
 	}
 }
 
+// Ler input
+int readInt ()
+{
+	int x = 0;
+	scanf (" %d", &x);
+	getchar();
+	return (x);
+}
+
+
 int main (void)
 {
+	// Criar arvore
 	Tree* t = newTree();
 	
 	int x = 0;
 	bool stop = false;
 
+	// inserir valores na arvore
+	printf("inserir valores: (x!=0)\n\n");
 	while (!stop)
 	{
+		printf("valor = ");
 		x = readInt();
 		if (x != 0)
 		{
@@ -213,11 +265,40 @@ int main (void)
 			stop = true;
 		}
 	}
+
+	// Chamar metodos
+
 	c = 0;
 	count(t->root);
-	printf ("c:%d\n ", c);
-	printf ("\n");
-	printC(t);
+	printf ("\ncontador: %d\n", c);
+
+	printf ("\nCaminhar Arvore\n\nCentro Esq:\n");
+	printCL(t);
+
+	printf ("\nCentro Dir:\n");
+	printCR(t);
+
+	printf ("\nPos:\n");
+	printPos(t);
+	
+	printf ("\nPre:\n");
+	printPre(t);
+
+	printf("\nRotacionar Arvore\n");
+	rotEsq(t);
+
+	printf ("\nCaminhar Arvore\n\nCentro Esq:\n");
+	printCL(t);
+
+	printf ("\nCentro Dir:\n");
+	printCR(t);
+
+	printf ("\nPos:\n");
+	printPos(t);
+	
+	printf ("\nPre:\n");
+	printPre(t);
+
 
 	return (0);
 }
